@@ -10,6 +10,7 @@ import Testimonials from './components/Testimonials';
 import CTA from './components/CTA';
 import Footer from './components/Footer';
 import DashboardPage from './pages/DashboardPage';
+import NewRequestPage from './pages/NewRequestPage';
 
 const LandingPage: React.FC = () => {
   return (
@@ -38,6 +39,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard/new-request" element={<NewRequestPage />} />
         <Route path="/dashboard/:section" element={<DashboardPage />} />
         {/* Placeholder routes */}
         <Route path="/about" element={<div className="p-8 text-center text-slate-500 font-bold">About Page</div>} />
