@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const CTA: React.FC = () => {
   return (
@@ -15,12 +16,15 @@ const CTA: React.FC = () => {
             Your next trip is closer<br />than you think.
           </h2>
           
-          <button className="bg-white text-navy px-[38px] py-[19px] rounded-full font-semibold text-[15px] inline-flex items-center gap-[10px] hover:bg-sand hover:text-white transition-all shadow-md shrink-0">
+          <Link
+            to="/dashboard"
+            className="bg-white text-navy px-[38px] py-[19px] rounded-full font-semibold text-[15px] inline-flex items-center gap-[10px] hover:bg-sand hover:text-white transition-all shadow-md shrink-0"
+          >
             <span>Start Exploring</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </button>
+          </Link>
         </div>
       </div>
     </section>
