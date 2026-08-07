@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+
+  --color-navy: #0F1B3D;
+  --color-ink: #12162B;
+  --color-blue-brand: #2F5FFF;
+  --color-blue-dark: #1D3FCB;
+  --color-sky: #EAF1FF;
+  --color-sand: #E8B57B;
+  --color-line: #D9E3FA;
+}
+
+h1, h2, h3, .display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
