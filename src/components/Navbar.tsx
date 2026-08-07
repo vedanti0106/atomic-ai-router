@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
   return (
@@ -37,11 +38,18 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* CTA */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <Link
+            to="/dashboard"
+            className="px-5 py-2.5 rounded-full bg-navy text-white font-semibold text-sm hover:opacity-90 transition-all"
+          >
+            Dashboard →
+          </Link>
           <button className="px-6 py-2.5 rounded-full border-[1.5px] border-blue-brand text-blue-brand font-semibold text-sm bg-transparent hover:bg-blue-brand hover:text-white transition-all">
             Sign Up
           </button>
         </div>
+
       </nav>
     </header>
   );
