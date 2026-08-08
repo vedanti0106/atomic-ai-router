@@ -12,6 +12,10 @@ import Footer from './components/Footer';
 import DashboardPage from './pages/DashboardPage';
 import NewRequestPage from './pages/NewRequestPage';
 import AgentsPage from './pages/AgentsPage';
+import TasksPage from './pages/TasksPage';
+import PaymentsPage from './pages/PaymentsPage';
+import LogsPage from './pages/LogsPage';
+import SettingsPage from './pages/SettingsPage';
 
 const LandingPage: React.FC = () => {
   return (
@@ -42,6 +46,10 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/dashboard/new-request" element={<NewRequestPage />} />
         <Route path="/dashboard/agents" element={<AgentsPage />} />
+        <Route path="/dashboard/tasks" element={<TasksPage />} />
+        <Route path="/dashboard/payments" element={<PaymentsPage />} />
+        <Route path="/dashboard/logs" element={<LogsPage />} />
+        <Route path="/dashboard/settings" element={<SettingsPage />} />
         <Route path="/dashboard/:section" element={<DashboardPage />} />
         {/* Placeholder routes */}
         <Route path="/about" element={<div className="p-8 text-center text-slate-500 font-bold">About Page</div>} />
