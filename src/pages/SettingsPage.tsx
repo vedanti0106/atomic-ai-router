@@ -47,28 +47,30 @@ const SettingsPage: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">
           
-          {/* Left Navigation Tabs */}
-          <div className="bg-white rounded-[24px] p-4 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] h-fit flex flex-col gap-1">
+          {/* Navigation Tabs - horizontal scroll on mobile, vertical on desktop */}
+          <div className="bg-white rounded-[24px] p-3 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] h-fit">
+            <div className="flex flex-row lg:flex-col gap-1 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0">
             {[
               { id: 'general', label: 'General & Router', icon: '⚙' },
-              { id: 'wallet', label: 'Algorand Wallet', icon: '💳' },
+              { id: 'wallet', label: 'Wallet', icon: '💳' },
               { id: 'x402', label: 'x402 Protocol', icon: '🛡' },
               { id: 'endpoints', label: 'API Endpoints', icon: '🌐' }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-[14px] text-[13.5px] font-bold transition-all text-left ${
+                className={`flex items-center gap-2 px-3 lg:px-4 py-2.5 rounded-[12px] lg:rounded-[14px] text-[12.5px] lg:text-[13.5px] font-bold transition-all text-left whitespace-nowrap flex-shrink-0 lg:flex-shrink ${
                   activeTab === tab.id 
                     ? 'bg-sky text-blue-brand' 
                     : 'text-slate-600 hover:bg-slate-50 hover:text-navy'
                 }`}
               >
-                <span className="text-base">{tab.icon}</span>
+                <span className="text-sm lg:text-base">{tab.icon}</span>
                 <span>{tab.label}</span>
               </button>
             ))}
           </div>
+        </div>
 
           {/* Right Configuration Form */}
           <form onSubmit={handleSave} className="bg-white rounded-[24px] p-8 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">

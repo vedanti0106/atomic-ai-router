@@ -119,16 +119,16 @@ const TasksPage: React.FC = () => {
       <div className="max-w-7xl mx-auto pb-10">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div className="flex flex-col gap-4 mb-8">
           <div>
-            <h1 className="text-[32px] font-bold font-display text-navy leading-tight">Tasks & Workflow Tracker</h1>
-            <p className="text-[15px] text-slate-500 mt-1 max-w-[650px]">
+            <h1 className="text-[24px] md:text-[32px] font-bold font-display text-navy leading-tight">Tasks & Workflow Tracker</h1>
+            <p className="text-[14px] md:text-[15px] text-slate-500 mt-1">
               Track multi-agent orchestration, monitor live sub-agent status, and inspect x402 atomic rollback transactions.
             </p>
           </div>
           <button 
             onClick={() => alert('Simulating new multi-agent atomic request execution...')}
-            className="self-start md:self-auto px-5 py-3 bg-blue-brand hover:bg-blue-dark text-white rounded-full text-[14px] font-bold transition-colors shadow-sm flex items-center gap-2"
+            className="self-start px-5 py-3 bg-blue-brand hover:bg-blue-dark text-white rounded-full text-[14px] font-bold transition-colors shadow-sm flex items-center gap-2"
           >
             <span>⚡</span>
             <span>Simulate New Task</span>
@@ -179,24 +179,24 @@ const TasksPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             
             {/* Status Filter Tabs */}
-            <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100/80 rounded-[14px]">
+            <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100/80 rounded-[14px] w-full sm:w-auto">
               {['ALL', 'SUCCESS', 'IN_PROGRESS', 'ROLLED_BACK', 'FAILED'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setFilterStatus(tab)}
-                  className={`px-3.5 py-1.5 rounded-[10px] text-[12.5px] font-bold transition-all ${
+                  className={`px-3 py-1.5 rounded-[10px] text-[12px] font-bold transition-all ${
                     filterStatus === tab 
                       ? 'bg-white text-navy shadow-sm' 
                       : 'text-slate-500 hover:text-navy'
                   }`}
                 >
-                  {tab === 'ALL' ? 'All Tasks' : tab.replace('_', ' ')}
+                  {tab === 'ALL' ? 'All' : tab.replace('_', ' ')}
                 </button>
               ))}
             </div>
 
             {/* Search Input */}
-            <div className="relative min-w-[260px]">
+            <div className="relative w-full sm:min-w-[260px]">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
               <input
                 type="text"
@@ -216,16 +216,16 @@ const TasksPage: React.FC = () => {
             <span className="text-[12px] font-medium text-slate-400">Auto-refreshing every 5s</span>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto -mx-0">
+            <table className="w-full text-left border-collapse min-w-[640px]">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-line">
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Task ID</th>
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Request Goal</th>
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Agents Involved</th>
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Total Cost</th>
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Status</th>
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                  <th className="py-3.5 px-4 md:px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Task ID</th>
+                  <th className="py-3.5 px-4 md:px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Request Goal</th>
+                  <th className="py-3.5 px-4 md:px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Agents</th>
+                  <th className="py-3.5 px-4 md:px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Cost</th>
+                  <th className="py-3.5 px-4 md:px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+                  <th className="py-3.5 px-4 md:px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -289,8 +289,8 @@ const TasksPage: React.FC = () => {
 
         {/* Task Detail Modal */}
         {selectedTask && (
-          <div className="fixed inset-0 bg-navy/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-[24px] max-w-2xl w-full max-h-[90vh] overflow-y-auto p-7 shadow-2xl border border-line animate-in fade-in zoom-in-95 duration-150">
+          <div className="fixed inset-0 bg-navy/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-4">
+            <div className="bg-white rounded-t-[24px] sm:rounded-[24px] max-w-2xl w-full max-h-[92vh] overflow-y-auto p-5 md:p-7 shadow-2xl border border-line">
               
               {/* Modal Header */}
               <div className="flex justify-between items-start mb-6 pb-4 border-b border-line">

@@ -27,8 +27,8 @@ const NewRequestPage: React.FC = () => {
         
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-[32px] font-bold font-display text-navy leading-tight">Create New Request</h1>
-          <p className="text-[15px] text-slate-500 mt-1 max-w-[600px]">
+          <h1 className="text-[24px] md:text-[32px] font-bold font-display text-navy leading-tight">Create New Request</h1>
+          <p className="text-[14px] md:text-[15px] text-slate-500 mt-1">
             Describe what you need and AI Router will automatically coordinate the best AI agents to complete your request.
           </p>
         </div>

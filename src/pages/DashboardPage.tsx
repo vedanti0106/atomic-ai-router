@@ -10,8 +10,8 @@ const DashboardPage: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-[32px] font-bold font-display text-navy leading-tight">Dashboard Overview</h1>
-          <p className="text-[15px] text-slate-500 mt-1">Monitor your AI Router network in real time.</p>
+          <h1 className="text-[24px] md:text-[32px] font-bold font-display text-navy leading-tight">Dashboard Overview</h1>
+          <p className="text-[14px] md:text-[15px] text-slate-500 mt-1">Monitor your AI Router network in real time.</p>
         </div>
 
         {/* Top Metrics */}

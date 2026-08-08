@@ -84,10 +84,10 @@ const PaymentsPage: React.FC = () => {
       <div className="max-w-7xl mx-auto pb-10">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div className="flex flex-col gap-4 mb-8">
           <div>
-            <h1 className="text-[32px] font-bold font-display text-navy leading-tight">x402 Payments & Algorand Ledger</h1>
-            <p className="text-[15px] text-slate-500 mt-1 max-w-[650px]">
+            <h1 className="text-[24px] md:text-[32px] font-bold font-display text-navy leading-tight">x402 Payments & Algorand Ledger</h1>
+            <p className="text-[14px] md:text-[15px] text-slate-500 mt-1">
               Inspect zero-setup machine-to-machine micro-payments settled natively via x402 protocol on Algorand TestNet.
             </p>
           </div>
@@ -143,7 +143,7 @@ const PaymentsPage: React.FC = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 md:gap-3">
             {[
               { step: '1', title: 'Initial Request', desc: 'Router calls Agent GET /service' },
               { step: '2', title: '402 Challenge', desc: 'Agent responds 402 with amount & nonce' },
@@ -193,7 +193,7 @@ const PaymentsPage: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse min-w-[600px]">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-line">
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Algorand TxID</th>
@@ -251,8 +251,8 @@ const PaymentsPage: React.FC = () => {
 
         {/* Modal: x402 Proof Inspector */}
         {selectedTx && (
-          <div className="fixed inset-0 bg-navy/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-[24px] max-w-lg w-full p-7 shadow-2xl border border-line">
+          <div className="fixed inset-0 bg-navy/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-4">
+            <div className="bg-white rounded-t-[24px] sm:rounded-[24px] max-w-lg w-full p-5 md:p-7 shadow-2xl border border-line max-h-[90vh] overflow-y-auto">
               
               <div className="flex justify-between items-start mb-5 pb-3 border-b border-line">
                 <div>

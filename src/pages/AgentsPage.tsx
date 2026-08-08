@@ -49,9 +49,9 @@ const AgentsPage: React.FC = () => {
       <div className="max-w-7xl mx-auto pb-10">
         
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-[32px] font-bold font-display text-navy leading-tight">AI Agents</h1>
-          <p className="text-[15px] text-slate-500 mt-1 max-w-[600px]">
+        <div className="flex flex-col gap-3 mb-8">
+          <h1 className="text-[24px] md:text-[32px] font-bold font-display text-navy leading-tight">AI Agents</h1>
+          <p className="text-[14px] md:text-[15px] text-slate-500">
             Monitor, manage and optimize every AI agent connected to the router.
           </p>
         </div>
@@ -76,7 +76,7 @@ const AgentsPage: React.FC = () => {
         </div>
 
         {/* Main Section + Right Panel */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mb-8">
           
           {/* Main Section: Agent Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -185,8 +185,8 @@ const AgentsPage: React.FC = () => {
         <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
           <h3 className="text-[16px] font-bold text-navy mb-5">Recent Agent Activity</h3>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto -mx-1">
+            <table className="w-full text-left border-collapse min-w-[500px]">
               <thead>
                 <tr className="border-b border-line">
                   <th className="pb-3 text-[12px] font-semibold text-slate-400 font-sans tracking-wide uppercase">Time</th>

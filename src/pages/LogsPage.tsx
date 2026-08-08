@@ -101,15 +101,15 @@ const LogsPage: React.FC = () => {
       <div className="max-w-7xl mx-auto pb-10">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div className="flex flex-col gap-4 mb-8">
           <div>
-            <h1 className="text-[32px] font-bold font-display text-navy leading-tight">System & Audit Logs</h1>
-            <p className="text-[15px] text-slate-500 mt-1 max-w-[650px]">
+            <h1 className="text-[24px] md:text-[32px] font-bold font-display text-navy leading-tight">System & Audit Logs</h1>
+            <p className="text-[14px] md:text-[15px] text-slate-500 mt-1">
               Append-only real-time event log for transparent debugging, x402 challenge verification, and live demo auditability.
             </p>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setIsLiveStreaming(!isLiveStreaming)}
               className={`px-4 py-2.5 rounded-full text-[13px] font-bold transition-colors flex items-center gap-2 ${
@@ -135,25 +135,25 @@ const LogsPage: React.FC = () => {
         <div className="bg-white rounded-[24px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             
-            {/* Level Tabs */}
-            <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100/80 rounded-[14px]">
+            {/* Level Tabs - scrollable on mobile */}
+            <div className="flex items-center gap-1 p-1.5 bg-slate-100/80 rounded-[14px] overflow-x-auto flex-shrink-0">
               {['ALL', 'x402', 'INFO', 'WARN', 'ERROR'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setFilterLevel(tab)}
-                  className={`px-3.5 py-1.5 rounded-[10px] text-[12.5px] font-bold transition-all ${
+                  className={`px-3 py-1.5 rounded-[10px] text-[12px] font-bold transition-all whitespace-nowrap flex-shrink-0 ${
                     filterLevel === tab 
                       ? 'bg-white text-navy shadow-sm' 
                       : 'text-slate-500 hover:text-navy'
                   }`}
                 >
-                  {tab === 'ALL' ? 'All Logs' : tab}
+                  {tab}
                 </button>
               ))}
             </div>
 
             {/* Search Input */}
-            <div className="relative min-w-[280px]">
+            <div className="relative w-full sm:min-w-[280px]">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
               <input
                 type="text"
