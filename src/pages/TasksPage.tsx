@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
 
+type EscrowStatus = 'FUNDED' | 'RELEASED' | 'REFUNDED' | 'DISPUTED';
+
 interface AgentCall {
   name: string;
   icon: string;
@@ -8,6 +10,7 @@ interface AgentCall {
   status: 'COMPLETED' | 'RUNNING' | 'FAILED' | 'ROLLED_BACK';
   txId?: string;
   latency: string;
+  escrowStatus?: EscrowStatus;
 }
 
 interface TaskItem {
@@ -20,6 +23,9 @@ interface TaskItem {
   currency: string;
   agents: AgentCall[];
   executionTime: string;
+  escrowStatus?: EscrowStatus;
+  escrowAppId?: number;
+  escrowDeadlineRound?: number;
 }
 
 const mockTasks: TaskItem[] = [
@@ -32,11 +38,13 @@ const mockTasks: TaskItem[] = [
     totalCost: '7.00',
     currency: 'USDC',
     executionTime: '4.2s',
+    escrowStatus: 'RELEASED',
+    escrowAppId: 741209831,
     agents: [
-      { name: 'Flight AI', icon: '✈', price: '3.00', status: 'COMPLETED', txId: 'ALGO_TX_8921A', latency: '620ms' },
-      { name: 'Hotel AI', icon: '🛏', price: '2.50', status: 'COMPLETED', txId: 'ALGO_TX_8921B', latency: '890ms' },
-      { name: 'Weather AI', icon: '☀', price: '0.50', status: 'COMPLETED', txId: 'ALGO_TX_8921C', latency: '210ms' },
-      { name: 'Finance AI', icon: '💳', price: '1.00', status: 'COMPLETED', txId: 'ALGO_TX_8921D', latency: '450ms' },
+      { name: 'Flight AI', icon: '✈', price: '3.00', status: 'COMPLETED', txId: 'ALGO_TX_8921A', latency: '620ms', escrowStatus: 'RELEASED' },
+      { name: 'Hotel AI', icon: '🛏', price: '2.50', status: 'COMPLETED', txId: 'ALGO_TX_8921B', latency: '890ms', escrowStatus: 'RELEASED' },
+      { name: 'Weather AI', icon: '☀', price: '0.50', status: 'COMPLETED', txId: 'ALGO_TX_8921C', latency: '210ms', escrowStatus: 'RELEASED' },
+      { name: 'Finance AI', icon: '💳', price: '1.00', status: 'COMPLETED', txId: 'ALGO_TX_8921D', latency: '450ms', escrowStatus: 'RELEASED' },
     ]
   },
   {
@@ -48,9 +56,12 @@ const mockTasks: TaskItem[] = [
     totalCost: '2.50',
     currency: 'USDC',
     executionTime: '1.8s',
+    escrowStatus: 'FUNDED',
+    escrowAppId: 741209831,
+    escrowDeadlineRound: 47312637,
     agents: [
-      { name: 'Price Scraper AI', icon: '🏷', price: '1.50', status: 'COMPLETED', txId: 'ALGO_TX_9012A', latency: '540ms' },
-      { name: 'Discount Finder AI', icon: '🎟', price: '1.00', status: 'RUNNING', latency: '310ms' },
+      { name: 'Price Scraper AI', icon: '🏷', price: '1.50', status: 'COMPLETED', txId: 'ALGO_TX_9012A', latency: '540ms', escrowStatus: 'FUNDED' },
+      { name: 'Discount Finder AI', icon: '🎟', price: '1.00', status: 'RUNNING', latency: '310ms', escrowStatus: 'FUNDED' },
       { name: 'Finance AI', icon: '💳', price: '0.00', status: 'RUNNING', latency: '0ms' }
     ]
   },
@@ -63,9 +74,11 @@ const mockTasks: TaskItem[] = [
     totalCost: '0.00',
     currency: 'USDC',
     executionTime: '2.1s',
+    escrowStatus: 'REFUNDED',
+    escrowAppId: 741209831,
     agents: [
-      { name: 'Symptom Checker AI', icon: '🩺', price: '4.00', status: 'ROLLED_BACK', txId: 'REFUND_TX_1102A', latency: '710ms' },
-      { name: 'Pharmacy Stock AI', icon: '💊', price: '2.00', status: 'ROLLED_BACK', txId: 'REFUND_TX_1102B', latency: '430ms' },
+      { name: 'Symptom Checker AI', icon: '🩺', price: '4.00', status: 'ROLLED_BACK', txId: 'REFUND_TX_1102A', latency: '710ms', escrowStatus: 'REFUNDED' },
+      { name: 'Pharmacy Stock AI', icon: '💊', price: '2.00', status: 'ROLLED_BACK', txId: 'REFUND_TX_1102B', latency: '430ms', escrowStatus: 'REFUNDED' },
       { name: 'Insurance Verify AI', icon: '🛡', price: '5.00', status: 'FAILED', latency: 'timeout' }
     ]
   },
@@ -78,10 +91,12 @@ const mockTasks: TaskItem[] = [
     totalCost: '12.00',
     currency: 'USDC',
     executionTime: '5.6s',
+    escrowStatus: 'RELEASED',
+    escrowAppId: 741209831,
     agents: [
-      { name: 'OCR Reader AI', icon: '📄', price: '5.00', status: 'COMPLETED', txId: 'ALGO_TX_7841A', latency: '1.2s' },
-      { name: 'Fraud Check AI', icon: '🔍', price: '4.00', status: 'COMPLETED', txId: 'ALGO_TX_7841B', latency: '980ms' },
-      { name: 'Policy Rules AI', icon: '📋', price: '3.00', status: 'COMPLETED', txId: 'ALGO_TX_7841C', latency: '650ms' }
+      { name: 'OCR Reader AI', icon: '📄', price: '5.00', status: 'COMPLETED', txId: 'ALGO_TX_7841A', latency: '1.2s', escrowStatus: 'RELEASED' },
+      { name: 'Fraud Check AI', icon: '🔍', price: '4.00', status: 'COMPLETED', txId: 'ALGO_TX_7841B', latency: '980ms', escrowStatus: 'RELEASED' },
+      { name: 'Policy Rules AI', icon: '📋', price: '3.00', status: 'COMPLETED', txId: 'ALGO_TX_7841C', latency: '650ms', escrowStatus: 'RELEASED' }
     ]
   },
   {
@@ -93,10 +108,12 @@ const mockTasks: TaskItem[] = [
     totalCost: '3.50',
     currency: 'USDC',
     executionTime: '2.9s',
+    escrowStatus: 'RELEASED',
+    escrowAppId: 741209831,
     agents: [
-      { name: 'Sentiment AI', icon: '📊', price: '1.00', status: 'COMPLETED', txId: 'ALGO_TX_6512A', latency: '320ms' },
-      { name: 'Translation AI', icon: '🌐', price: '1.50', status: 'COMPLETED', txId: 'ALGO_TX_6512B', latency: '810ms' },
-      { name: 'Reply Draft AI', icon: '✍', price: '1.00', status: 'COMPLETED', txId: 'ALGO_TX_6512C', latency: '540ms' }
+      { name: 'Sentiment AI', icon: '📊', price: '1.00', status: 'COMPLETED', txId: 'ALGO_TX_6512A', latency: '320ms', escrowStatus: 'RELEASED' },
+      { name: 'Translation AI', icon: '🌐', price: '1.50', status: 'COMPLETED', txId: 'ALGO_TX_6512B', latency: '810ms', escrowStatus: 'RELEASED' },
+      { name: 'Reply Draft AI', icon: '✍', price: '1.00', status: 'COMPLETED', txId: 'ALGO_TX_6512C', latency: '540ms', escrowStatus: 'RELEASED' }
     ]
   }
 ];
@@ -262,15 +279,28 @@ const TasksPage: React.FC = () => {
                       ${t.totalCost} <span className="text-[11px] font-medium text-slate-400">{t.currency}</span>
                     </td>
                     <td className="py-4 px-6">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide ${
-                        t.status === 'SUCCESS' ? 'bg-[#E3FBF5] text-[#0E7D69]' :
-                        t.status === 'IN_PROGRESS' ? 'bg-sky text-blue-brand animate-pulse' :
-                        t.status === 'ROLLED_BACK' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                        'bg-rose-50 text-rose-700 border border-rose-200'
-                      }`}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                        {t.status.replace('_', ' ')}
-                      </span>
+                      <div className="flex flex-col gap-1.5">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide ${
+                          t.status === 'SUCCESS' ? 'bg-[#E3FBF5] text-[#0E7D69]' :
+                          t.status === 'IN_PROGRESS' ? 'bg-sky text-blue-brand animate-pulse' :
+                          t.status === 'ROLLED_BACK' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                          'bg-rose-50 text-rose-700 border border-rose-200'
+                        }`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                          {t.status.replace('_', ' ')}
+                        </span>
+                        {t.escrowStatus && (
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold w-fit ${
+                            t.escrowStatus === 'RELEASED' ? 'bg-emerald-50 text-emerald-700' :
+                            t.escrowStatus === 'REFUNDED' ? 'bg-blue-50 text-blue-700' :
+                            t.escrowStatus === 'FUNDED'   ? 'bg-amber-50 text-amber-700' :
+                            'bg-rose-50 text-rose-700'
+                          }`}>
+                            {t.escrowStatus === 'RELEASED' ? '✅' : t.escrowStatus === 'REFUNDED' ? '↩' : t.escrowStatus === 'FUNDED' ? '🔒' : '⚠'}
+                            {' '}Escrow {t.escrowStatus}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-4 px-6 text-right">
                       <button
@@ -330,6 +360,30 @@ const TasksPage: React.FC = () => {
                 </div>
               )}
 
+              {/* Escrow Status Panel */}
+              {selectedTask.escrowStatus && (
+                <div className={`mb-6 p-4 rounded-[16px] border text-[13px] ${
+                  selectedTask.escrowStatus === 'RELEASED' ? 'bg-emerald-50 border-emerald-200 text-emerald-900' :
+                  selectedTask.escrowStatus === 'REFUNDED' ? 'bg-blue-50 border-blue-200 text-blue-900' :
+                  selectedTask.escrowStatus === 'FUNDED'   ? 'bg-amber-50 border-amber-200 text-amber-900' :
+                  'bg-rose-50 border-rose-200 text-rose-900'
+                }`}>
+                  <div className="font-bold flex items-center gap-2 mb-2">
+                    <span>{selectedTask.escrowStatus === 'RELEASED' ? '✅' : selectedTask.escrowStatus === 'REFUNDED' ? '↩' : selectedTask.escrowStatus === 'FUNDED' ? '🔒' : '⚠'}</span>
+                    <span>Escrow Contract — {selectedTask.escrowStatus}</span>
+                    {selectedTask.escrowAppId && (
+                      <span className="ml-auto font-mono text-[11px] opacity-70">App ID {selectedTask.escrowAppId}</span>
+                    )}
+                  </div>
+                  <div className="text-[12px] opacity-80">
+                    {selectedTask.escrowStatus === 'FUNDED'   && `Funds are locked in the smart contract (App ID ${selectedTask.escrowAppId}). Deadline round: ${selectedTask.escrowDeadlineRound?.toLocaleString() ?? 'N/A'}. Auto-refund will fire if agent doesn't deliver.`}
+                    {selectedTask.escrowStatus === 'RELEASED' && 'Funds were released to the agent after delivery proof was verified by the Facilitator and stored on-chain.'}
+                    {selectedTask.escrowStatus === 'REFUNDED' && 'Deadline passed without delivery — funds were automatically returned to the payer by the permissionless refund_escrow() call.'}
+                    {selectedTask.escrowStatus === 'DISPUTED' && 'Escrow is frozen pending admin arbitration. Admin can release to agent or refund payer via resolve_dispute().'}
+                  </div>
+                </div>
+              )}
+
               {/* Sub-Agents Breakdown */}
               <h4 className="text-[14px] font-bold text-navy mb-4">Execution Sequence & x402 Payments</h4>
               <div className="flex flex-col gap-3 mb-6">
@@ -355,13 +409,39 @@ const TasksPage: React.FC = () => {
                       ) : (
                         <span className="text-[11px] text-slate-400">No TxID</span>
                       )}
+                      {ag.escrowStatus && (
+                        <div className={`mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full w-fit ml-auto ${
+                          ag.escrowStatus === 'RELEASED' ? 'bg-emerald-100 text-emerald-700' :
+                          ag.escrowStatus === 'REFUNDED' ? 'bg-blue-100 text-blue-700' :
+                          ag.escrowStatus === 'FUNDED'   ? 'bg-amber-100 text-amber-700' :
+                          'bg-rose-100 text-rose-700'
+                        }`}>
+                          {ag.escrowStatus === 'RELEASED' ? '✅' : ag.escrowStatus === 'REFUNDED' ? '↩' : ag.escrowStatus === 'FUNDED' ? '🔒' : '⚠'} {ag.escrowStatus}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-line">
+              <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-line">
+                {selectedTask.escrowStatus === 'FUNDED' && (
+                  <>
+                    <button
+                      onClick={() => alert(`Triggering escrow refund for ${selectedTask.id}…\nPOST /api/escrow/refund`)}
+                      className="px-4 py-2.5 bg-blue-50 text-blue-700 border border-blue-200 font-bold rounded-full text-[12px] hover:bg-blue-100 transition-colors"
+                    >
+                      ↩ Trigger Refund
+                    </button>
+                    <button
+                      onClick={() => alert(`Raising dispute for ${selectedTask.id}…\nPOST /api/escrow/dispute`)}
+                      className="px-4 py-2.5 bg-rose-50 text-rose-700 border border-rose-200 font-bold rounded-full text-[12px] hover:bg-rose-100 transition-colors"
+                    >
+                      ⚠ Raise Dispute
+                    </button>
+                  </>
+                )}
                 <button 
                   onClick={() => setSelectedTask(null)}
                   className="px-5 py-2.5 bg-slate-100 text-slate-700 font-bold rounded-full text-[13px] hover:bg-slate-200 transition-colors"

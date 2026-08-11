@@ -16,6 +16,7 @@ import TasksPage from './pages/TasksPage';
 import PaymentsPage from './pages/PaymentsPage';
 import LogsPage from './pages/LogsPage';
 import SettingsPage from './pages/SettingsPage';
+import EscrowPage from './pages/EscrowPage';
 
 const LandingPage: React.FC = () => {
   return (
@@ -48,6 +49,7 @@ function App() {
         <Route path="/dashboard/agents" element={<AgentsPage />} />
         <Route path="/dashboard/tasks" element={<TasksPage />} />
         <Route path="/dashboard/payments" element={<PaymentsPage />} />
+        <Route path="/dashboard/escrow" element={<EscrowPage />} />
         <Route path="/dashboard/logs" element={<LogsPage />} />
         <Route path="/dashboard/settings" element={<SettingsPage />} />
         <Route path="/dashboard/:section" element={<DashboardPage />} />

@@ -7,6 +7,7 @@ const navItems = [
   { label: 'Agents', icon: '🤖', path: '/dashboard/agents' },
   { label: 'Tasks', icon: '✅', path: '/dashboard/tasks' },
   { label: 'Payments', icon: '💳', path: '/dashboard/payments' },
+  { label: 'Escrow', icon: '🔒', path: '/dashboard/escrow' },
   { label: 'Logs', icon: '📄', path: '/dashboard/logs' },
   { label: 'Settings', icon: '⚙', path: '/dashboard/settings' },
 ];

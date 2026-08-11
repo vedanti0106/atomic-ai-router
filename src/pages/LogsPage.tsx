@@ -4,7 +4,7 @@ import DashboardLayout from '../components/dashboard/DashboardLayout';
 interface LogEntry {
   id: string;
   timestamp: string;
-  level: 'INFO' | 'WARN' | 'ERROR' | 'x402';
+  level: 'INFO' | 'WARN' | 'ERROR' | 'x402' | 'ESCROW';
   taskId?: string;
   source: string;
   message: string;
@@ -12,6 +12,51 @@ interface LogEntry {
 }
 
 const mockLogs: LogEntry[] = [
+  {
+    id: 'log_9906',
+    timestamp: '16:15:44.820',
+    level: 'ESCROW',
+    taskId: 'task_9f31ab',
+    source: 'EscrowService',
+    message: 'Escrow RELEASED — 7.00 USDC sent to agent Flight AI',
+    metadata: {
+      txId: 'TX_ALG_REL_9921B',
+      confirmedRound: 47312402,
+      agentAddress: 'ALGO_FLIGHT_W481...9X',
+      proofHash: 'a3f8c2d9e1b04712...6f2a',
+      amountUsdc: 7.00
+    }
+  },
+  {
+    id: 'log_9905',
+    timestamp: '16:15:44.512',
+    level: 'ESCROW',
+    taskId: 'task_9f31ab',
+    source: 'EscrowService',
+    message: 'release_escrow() called — delivery proof hash stored on-chain',
+    metadata: {
+      appId: 741209831,
+      boxKey: 'task_9f31ab',
+      proofHash: 'a3f8c2d9e1b04712...6f2a',
+      facilitatorAddress: 'ALGO_FACILITATOR_W112...3Z'
+    }
+  },
+  {
+    id: 'log_9904',
+    timestamp: '16:15:43.100',
+    level: 'ESCROW',
+    taskId: 'task_9f31ab',
+    source: 'EscrowService',
+    message: 'Escrow FUNDED — 7.00 USDC locked in contract, deadline round 47312700',
+    metadata: {
+      txId: 'TX_ALG_99201A843F',
+      appId: 741209831,
+      boxKey: 'task_9f31ab',
+      deadlineRound: 47312700,
+      amountUsdc: 7.00,
+      payerAddress: 'ALGO_ROUTER_MAIN_W9812A4789X012'
+    }
+  },
   {
     id: 'log_9901',
     timestamp: '16:15:44.210',
@@ -42,8 +87,8 @@ const mockLogs: LogEntry[] = [
     level: 'x402',
     taskId: 'task_9f31ab',
     source: 'Flight AI',
-    message: 'HTTP 402 Payment Required returned to Router',
-    metadata: { challengeAmount: '3.00 USDC', nonce: '8f0a1c93', payTo: 'ALGO_FLIGHT_W481' }
+    message: 'HTTP 402 Payment Required returned to Router — payTo: Escrow App',
+    metadata: { challengeAmount: '3.00 USDC', nonce: '8f0a1c93', payTo: 'ESCROW_APP_741209831' }
   },
   {
     id: 'log_9898',
@@ -64,13 +109,47 @@ const mockLogs: LogEntry[] = [
     metadata: { timeout: true, status: 504 }
   },
   {
-    id: 'log_9896',
-    timestamp: '16:02:12.450',
-    level: 'x402',
+    id: 'log_9903',
+    timestamp: '16:02:13.110',
+    level: 'ESCROW',
     taskId: 'task_77a11e',
-    source: 'Payment Module',
-    message: 'Atomic rollback completed: refund transaction issued for task_77a11e',
-    metadata: { refundTxId: 'REFUND_TX_1102A', refundedAmount: '6.00 USDC' }
+    source: 'EscrowService',
+    message: 'Auto-refund triggered — deadline round 47312130 passed at round 47312451',
+    metadata: {
+      currentRound: 47312451,
+      deadlineRound: 47312130,
+      payerAddress: 'ALGO_ROUTER_MAIN_W9812A4789X012',
+      amountUsdc: 6.00
+    }
+  },
+  {
+    id: 'log_9896',
+    timestamp: '16:02:13.850',
+    level: 'ESCROW',
+    taskId: 'task_77a11e',
+    source: 'EscrowService',
+    message: 'Escrow REFUNDED — 6.00 USDC returned to payer. TxID REFUND_TX_1102A',
+    metadata: {
+      txId: 'REFUND_TX_1102A',
+      confirmedRound: 47312453,
+      payerAddress: 'ALGO_ROUTER_MAIN_W9812A4789X012',
+      refundedAmount: '6.00 USDC'
+    }
+  },
+  {
+    id: 'log_9902',
+    timestamp: '15:55:30.041',
+    level: 'ESCROW',
+    taskId: 'task_disp_01',
+    source: 'EscrowService',
+    message: 'Dispute RAISED for task_disp_01 — funds frozen pending admin resolution',
+    metadata: {
+      escrowId: 'escrow_task_disp_01',
+      appId: 741209831,
+      status: 'DISPUTED',
+      payerAddress: 'ALGO_ROUTER_MAIN_W9812A4789X012',
+      amountUsdc: 8.50
+    }
   },
   {
     id: 'log_9895',
@@ -137,7 +216,7 @@ const LogsPage: React.FC = () => {
             
             {/* Level Tabs - scrollable on mobile */}
             <div className="flex items-center gap-1 p-1.5 bg-slate-100/80 rounded-[14px] overflow-x-auto flex-shrink-0">
-              {['ALL', 'x402', 'INFO', 'WARN', 'ERROR'].map(tab => (
+              {['ALL', 'ESCROW', 'x402', 'INFO', 'WARN', 'ERROR'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setFilterLevel(tab)}
@@ -198,6 +277,7 @@ const LogsPage: React.FC = () => {
 
                       {/* Level Badge */}
                       <span className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold uppercase tracking-wider shrink-0 ${
+                        log.level === 'ESCROW' ? 'bg-amber-100 text-amber-800 border border-amber-300' :
                         log.level === 'x402' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
                         log.level === 'INFO' ? 'bg-sky text-blue-brand' :
                         log.level === 'WARN' ? 'bg-amber-100 text-amber-800' :

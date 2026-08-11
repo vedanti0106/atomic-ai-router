@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
 
 const SettingsPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'general' | 'wallet' | 'x402' | 'endpoints'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'wallet' | 'x402' | 'endpoints' | 'escrow'>('general');
   
   // Settings Form State
   const [routerName, setRouterName] = useState('Atomic Multi-Agent Service Router');
@@ -10,12 +10,18 @@ const SettingsPage: React.FC = () => {
   const [smartRouting, setSmartRouting] = useState(true);
   const [walletAddress, setWalletAddress] = useState('ALGO_ROUTER_MAIN_W9812A4789X012');
   const [algorandNetwork, setAlgorandNetwork] = useState('TestNet');
-  const [usdcAssetId, setUsdcAssetId] = useState('10458941'); // TestNet USDC ASA ID
+  const [usdcAssetId, setUsdcAssetId] = useState('10458941');
   const [autoRollback, setAutoRollback] = useState(true);
   const [nonceExpiry, setNonceExpiry] = useState('300');
   const [maxPaymentCap, setMaxPaymentCap] = useState('20.00');
   const [facilitatorUrl, setFacilitatorUrl] = useState('http://localhost:3002/facilitator');
   const [algonodeUrl, setAlgonodeUrl] = useState('https://testnet-api.algonode.cloud');
+  // Escrow settings
+  const [escrowAppId, setEscrowAppId] = useState('741209831');
+  const [adminAddress, setAdminAddress] = useState('ALGO_ROUTER_MAIN_W9812A4789X012');
+  const [facilitatorAddress, setFacilitatorAddress] = useState('ALGO_FACILITATOR_W112...3Z');
+  const [deadlineRounds, setDeadlineRounds] = useState('300');
+  const [autoRefundEnabled, setAutoRefundEnabled] = useState(true);
 
   const [savedSuccess, setSavedSuccess] = useState(false);
 
@@ -54,6 +60,7 @@ const SettingsPage: React.FC = () => {
               { id: 'general', label: 'General & Router', icon: '⚙' },
               { id: 'wallet', label: 'Wallet', icon: '💳' },
               { id: 'x402', label: 'x402 Protocol', icon: '🛡' },
+              { id: 'escrow', label: 'Escrow Contract', icon: '🔒' },
               { id: 'endpoints', label: 'API Endpoints', icon: '🌐' }
             ].map(tab => (
               <button
@@ -221,7 +228,93 @@ const SettingsPage: React.FC = () => {
               </div>
             )}
 
-            {/* Tab 4: API Endpoints */}
+            {/* Tab 4: Escrow Contract */}
+            {activeTab === 'escrow' && (
+              <div className="flex flex-col gap-6">
+                <div>
+                  <h3 className="text-[18px] font-bold text-navy mb-1">Trustless Escrow Smart Contract</h3>
+                  <p className="text-[13px] text-slate-500">Configure the Algorand escrow application that holds task funds until delivery is proven on-chain.</p>
+                </div>
+
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-[16px] flex items-start gap-3">
+                  <span className="text-xl">🔒</span>
+                  <div>
+                    <div className="text-[13px] font-bold text-amber-800">Escrow Contract Active</div>
+                    <div className="text-[12px] text-amber-700 mt-0.5">App ID {escrowAppId} — deployed on Algorand {algorandNetwork}. Box Storage per task. USDC ASA {usdcAssetId}.</div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-[13px] font-bold text-navy">Escrow App ID</label>
+                  <input
+                    type="text"
+                    value={escrowAppId}
+                    onChange={(e) => setEscrowAppId(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-line rounded-[12px] font-mono text-[13px] text-ink focus:outline-none focus:border-blue-brand"
+                    placeholder="Deploy with: python escrow_contract.py deploy"
+                  />
+                  <p className="text-[11.5px] text-slate-400">Deploy <code className="bg-slate-100 px-1 rounded">server/src/contracts/escrow_contract.py</code> once — reused for all tasks via Box Storage.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[13px] font-bold text-navy">Admin / Dispute Resolver Address</label>
+                    <input
+                      type="text"
+                      value={adminAddress}
+                      onChange={(e) => setAdminAddress(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-line rounded-[12px] font-mono text-[12px] text-ink focus:outline-none focus:border-blue-brand"
+                    />
+                    <p className="text-[11px] text-slate-400">Only this address can call <code className="bg-slate-100 px-1 rounded">resolve_dispute()</code>.</p>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[13px] font-bold text-navy">Facilitator Address</label>
+                    <input
+                      type="text"
+                      value={facilitatorAddress}
+                      onChange={(e) => setFacilitatorAddress(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-line rounded-[12px] font-mono text-[12px] text-ink focus:outline-none focus:border-blue-brand"
+                    />
+                    <p className="text-[11px] text-slate-400">Only this address can call <code className="bg-slate-100 px-1 rounded">release_escrow()</code>.</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-[13px] font-bold text-navy">Default Deadline (Algorand Rounds)</label>
+                  <input
+                    type="number"
+                    value={deadlineRounds}
+                    onChange={(e) => setDeadlineRounds(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-line rounded-[12px] text-[14px] text-ink focus:outline-none focus:border-blue-brand"
+                  />
+                  <p className="text-[11.5px] text-slate-400">300 rounds ≈ 20 minutes on Algorand TestNet (~4s per round). After this, <code className="bg-slate-100 px-1 rounded">refund_escrow()</code> becomes callable by anyone.</p>
+                </div>
+
+                <div className="pt-2 border-t border-line flex items-center justify-between">
+                  <div>
+                    <div className="text-[14px] font-bold text-navy">Auto-Refund Watcher</div>
+                    <div className="text-[12.5px] text-slate-500">Automatically poll <code className="bg-slate-100 px-1 rounded text-[11px]">GET /api/escrow/expired</code> and trigger refunds for overdue escrows.</div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={autoRefundEnabled}
+                    onChange={(e) => setAutoRefundEnabled(e.target.checked)}
+                    className="w-5 h-5 accent-blue-brand rounded cursor-pointer"
+                  />
+                </div>
+
+                <div className="p-4 bg-slate-900 rounded-[16px] font-mono text-[12px] text-slate-400">
+                  <div className="text-slate-300 font-bold mb-2 font-sans text-[12.5px]">Deploy Command</div>
+                  <div className="text-emerald-400">$ cd server/src/contracts</div>
+                  <div className="text-slate-300">$ pip install beaker-pyteal pyteal py-algorand-sdk</div>
+                  <div className="text-slate-300">$ ROUTER_MNEMONIC="..." python escrow_contract.py deploy</div>
+                  <div className="text-amber-400 mt-1"># → Copy App ID above and set ESCROW_APP_ID env var</div>
+                </div>
+              </div>
+            )}
+
+            {/* Tab 5: API Endpoints */}
             {activeTab === 'endpoints' && (
               <div className="flex flex-col gap-6">
                 <div>
