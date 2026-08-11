@@ -7,7 +7,7 @@ const Hero: React.FC = () => {
     <section className="relative pt-22 pb-0 overflow-visible">
       <div className="max-w-[1560px] mx-auto px-6 md:px-14 relative">
         {/* Plane doodle path */}
-        <svg className="absolute top-[70px] left-[60px] w-[150px] opacity-85 hidden md:block" viewBox="0 0 160 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg className="absolute top-[-8px] left-[55px] w-[150px] opacity-85 hidden md:block" viewBox="0 0 160 90" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M6 74C36 20 90 8 150 12" stroke="#0F1B3D" strokeWidth="1.4" strokeDasharray="4 5" />
           <path d="M150 12L140 8M150 12L146 20" stroke="#0F1B3D" strokeWidth="1.4" />
           <path d="M2 74L14 68L20 76L8 80Z" fill="#2F5FFF" />
@@ -57,14 +57,6 @@ const Hero: React.FC = () => {
                   <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
-              <div className="flex items-center gap-3 font-semibold text-[14.5px] cursor-pointer text-ink hover:text-blue-brand transition-colors">
-                <div className="w-[38px] h-[38px] rounded-full border border-ink flex items-center justify-center">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-ink">
-                    <path d="M8 5V19L19 12L8 5Z" />
-                  </svg>
-                </div>
-                <span>Watch Video</span>
-              </div>
             </div>
           </div>
 
