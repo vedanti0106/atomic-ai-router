@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
+import { useToast } from '../context/ToastContext';
 
 interface Transaction {
   txId: string;
@@ -26,52 +27,53 @@ const mockTransactions: Transaction[] = [
     timestamp: '2 mins ago'
   },
   {
-    txId: 'TX_ALG_99201B421E',
-    taskId: 'task_9f31ab',
+    txId: 'TX_ALG_88192B710C',
+    taskId: 'task_8e20ba',
     agent: 'Hotel AI',
-    agentWallet: 'ALGO_HOTEL_W912...4K',
-    amount: '2.50',
+    agentWallet: 'ALGO_HOTEL_W102...3A',
+    amount: '8.50',
     currency: 'USDC',
-    nonce: '3d2b9a71',
+    nonce: '7c1b2d84',
     status: 'SETTLED',
-    timestamp: '2 mins ago'
-  },
-  {
-    txId: 'TX_ALG_77810C110A',
-    taskId: 'task_77a11e',
-    agent: 'Symptom Checker AI',
-    agentWallet: 'ALGO_HEALTH_W331...2M',
-    amount: '4.00',
-    currency: 'USDC',
-    nonce: '1a90c4f8',
-    status: 'REFUNDED',
     timestamp: '15 mins ago'
   },
   {
-    txId: 'TX_ALG_65192D890C',
-    taskId: 'task_65b99f',
-    agent: 'OCR Reader AI',
-    agentWallet: 'ALGO_OCR_W772...1P',
-    amount: '5.00',
+    txId: 'TX_ALG_77083C621D',
+    taskId: 'task_7d19c9',
+    agent: 'Weather Risk AI',
+    agentWallet: 'ALGO_WEATH_W931...7Z',
+    amount: '0.10',
     currency: 'USDC',
-    nonce: '7c44e9b2',
+    nonce: '6a0c3e75',
     status: 'SETTLED',
     timestamp: '1 hour ago'
   },
   {
-    txId: 'TX_ALG_54109E334B',
-    taskId: 'task_88c42d',
-    agent: 'Price Scraper AI',
-    agentWallet: 'ALGO_SHOP_W109...8L',
-    amount: '1.50',
+    txId: 'TX_ALG_66974D532E',
+    taskId: 'task_6c08d8',
+    agent: 'Payment Escrow',
+    agentWallet: 'ALGO_ESCROW_W552...1M',
+    amount: '12.00',
     currency: 'USDC',
-    nonce: '9b110a34',
+    nonce: '5f9d4e66',
+    status: 'REFUNDED',
+    timestamp: '3 hours ago'
+  },
+  {
+    txId: 'TX_ALG_55865E443F',
+    taskId: 'task_5b97e7',
+    agent: 'Routing Facilitator',
+    agentWallet: 'ALGO_ROUT_W771...4P',
+    amount: '0.05',
+    currency: 'USDC',
+    nonce: '4e8c5f55',
     status: 'PENDING',
     timestamp: 'Just now'
   }
 ];
 
 const PaymentsPage: React.FC = () => {
+  const { showInfo } = useToast();
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
@@ -93,7 +95,7 @@ const PaymentsPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => alert('Opening Algorand TestNet Explorer for wallet...')}
+              onClick={() => showInfo('Opening Algorand TestNet Explorer for wallet...')}
               className="px-4 py-2.5 bg-sky text-blue-brand rounded-full text-[13px] font-bold hover:bg-blue-brand hover:text-white transition-colors flex items-center gap-1.5"
             >
               <span>🔗</span>
