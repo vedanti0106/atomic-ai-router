@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
+import { useToast } from '../context/ToastContext';
 
 const suggestions = [
   'Plan a trip',
@@ -19,7 +20,15 @@ const agents = [
 ];
 
 const NewRequestPage: React.FC = () => {
+  const { showSuccess } = useToast();
   const [budget, setBudget] = useState(55000);
+  const [requestText, setRequestText] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    showSuccess('Request created successfully! AI Agents dispatched.');
+    setRequestText('');
+  };
 
   return (
     <DashboardLayout>
@@ -104,7 +113,10 @@ const NewRequestPage: React.FC = () => {
             </div>
 
             {/* Submit Button */}
-            <button className="w-full bg-blue-brand hover:bg-blue-dark text-white rounded-full py-4 text-[15px] font-bold transition-colors shadow-md mt-2">
+            <button 
+              onClick={handleSubmit}
+              className="w-full bg-blue-brand hover:bg-blue-dark text-white rounded-full py-4 text-[15px] font-bold transition-colors shadow-md mt-2"
+            >
               Create Request
             </button>
 

@@ -44,9 +44,12 @@ const Navbar: React.FC = () => {
           >
             Dashboard →
           </Link>
-          <button className="hidden md:block px-6 py-2.5 rounded-full border-[1.5px] border-blue-brand text-blue-brand font-semibold text-sm bg-transparent hover:bg-blue-brand hover:text-white transition-all">
+          <Link
+            to="/signup"
+            className="hidden md:inline-flex items-center justify-center px-6 py-2.5 rounded-full border-[1.5px] border-blue-brand text-blue-brand font-semibold text-sm bg-transparent hover:bg-blue-brand hover:text-white transition-all"
+          >
             Sign Up
-          </button>
+          </Link>
           {/* Hamburger - mobile only */}
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -72,9 +75,13 @@ const Navbar: React.FC = () => {
           <a href="#services" onClick={() => setMenuOpen(false)} className="text-[15px] font-medium text-navy py-2 border-b border-line/50">Services</a>
           <a href="#destinations" onClick={() => setMenuOpen(false)} className="text-[15px] font-medium text-navy py-2 border-b border-line/50">Destinations</a>
           <a href="#footer" onClick={() => setMenuOpen(false)} className="text-[15px] font-medium text-navy py-2 border-b border-line/50">Contact</a>
-          <button className="mt-2 w-full py-2.5 rounded-full border-[1.5px] border-blue-brand text-blue-brand font-semibold text-sm bg-transparent hover:bg-blue-brand hover:text-white transition-all">
+          <Link
+            to="/signup"
+            onClick={() => setMenuOpen(false)}
+            className="mt-2 w-full text-center py-2.5 rounded-full border-[1.5px] border-blue-brand text-blue-brand font-semibold text-sm bg-transparent hover:bg-blue-brand hover:text-white transition-all block"
+          >
             Sign Up
-          </button>
+          </Link>
         </div>
       )}
     </header>

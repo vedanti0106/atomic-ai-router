@@ -1,5 +1,6 @@
 import React from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
+import { useToast } from '../context/ToastContext';
 
 const metrics = [
   { label: 'Total Agents', value: '23', icon: '🤖' },
@@ -44,6 +45,7 @@ const activity = [
 ];
 
 const AgentsPage: React.FC = () => {
+  const { showInfo, showSuccess } = useToast();
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto pb-10">
@@ -125,10 +127,16 @@ const AgentsPage: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 mt-auto pt-5 border-t border-line">
-                  <button className="py-2 px-3 border border-line rounded-[10px] text-[13px] font-semibold text-navy hover:bg-slate-50 transition-colors">
+                  <button 
+                    onClick={() => showInfo(`Viewing telemetry and metrics for ${agent.name}...`)}
+                    className="py-2 px-3 border border-line rounded-[10px] text-[13px] font-semibold text-navy hover:bg-slate-50 transition-colors"
+                  >
                     View Details
                   </button>
-                  <button className="py-2 px-3 border border-line rounded-[10px] text-[13px] font-semibold text-navy hover:bg-slate-50 transition-colors">
+                  <button 
+                    onClick={() => showSuccess(`Restarting ${agent.name}... Process initialized.`)}
+                    className="py-2 px-3 border border-line rounded-[10px] text-[13px] font-semibold text-navy hover:bg-slate-50 transition-colors"
+                  >
                     Restart Agent
                   </button>
                 </div>

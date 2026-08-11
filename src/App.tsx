@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastProvider } from './context/ToastContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import SearchSection from './components/SearchSection';
@@ -16,6 +17,7 @@ import TasksPage from './pages/TasksPage';
 import PaymentsPage from './pages/PaymentsPage';
 import LogsPage from './pages/LogsPage';
 import SettingsPage from './pages/SettingsPage';
+import AuthPage from './pages/AuthPage';
 
 const LandingPage: React.FC = () => {
   return (
@@ -40,24 +42,29 @@ const LandingPage: React.FC = () => {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/dashboard/new-request" element={<NewRequestPage />} />
-        <Route path="/dashboard/agents" element={<AgentsPage />} />
-        <Route path="/dashboard/tasks" element={<TasksPage />} />
-        <Route path="/dashboard/payments" element={<PaymentsPage />} />
-        <Route path="/dashboard/logs" element={<LogsPage />} />
-        <Route path="/dashboard/settings" element={<SettingsPage />} />
-        <Route path="/dashboard/:section" element={<DashboardPage />} />
-        {/* Placeholder routes */}
-        <Route path="/about" element={<div className="p-8 text-center text-slate-500 font-bold">About Page</div>} />
-        <Route path="/services" element={<div className="p-8 text-center text-slate-500 font-bold">Services Page</div>} />
-        <Route path="/destinations" element={<div className="p-8 text-center text-slate-500 font-bold">Destinations Page</div>} />
-        <Route path="/contact" element={<div className="p-8 text-center text-slate-500 font-bold">Contact Page</div>} />
-      </Routes>
-    </Router>
+    <ToastProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/signup" element={<AuthPage />} />
+          <Route path="/signin" element={<AuthPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard/new-request" element={<NewRequestPage />} />
+          <Route path="/dashboard/agents" element={<AgentsPage />} />
+          <Route path="/dashboard/tasks" element={<TasksPage />} />
+          <Route path="/dashboard/payments" element={<PaymentsPage />} />
+          <Route path="/dashboard/logs" element={<LogsPage />} />
+          <Route path="/dashboard/settings" element={<SettingsPage />} />
+          <Route path="/dashboard/:section" element={<DashboardPage />} />
+          {/* Placeholder routes */}
+          <Route path="/about" element={<div className="p-8 text-center text-slate-500 font-bold">About Page</div>} />
+          <Route path="/services" element={<div className="p-8 text-center text-slate-500 font-bold">Services Page</div>} />
+          <Route path="/destinations" element={<div className="p-8 text-center text-slate-500 font-bold">Destinations Page</div>} />
+          <Route path="/contact" element={<div className="p-8 text-center text-slate-500 font-bold">Contact Page</div>} />
+        </Routes>
+      </Router>
+    </ToastProvider>
   );
 }
 

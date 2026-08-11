@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
+import { useToast } from '../context/ToastContext';
 
 const SettingsPage: React.FC = () => {
+  const { showSuccess } = useToast();
   const [activeTab, setActiveTab] = useState<'general' | 'wallet' | 'x402' | 'endpoints'>('general');
   
   // Settings Form State
@@ -17,12 +19,9 @@ const SettingsPage: React.FC = () => {
   const [facilitatorUrl, setFacilitatorUrl] = useState('http://localhost:3002/facilitator');
   const [algonodeUrl, setAlgonodeUrl] = useState('https://testnet-api.algonode.cloud');
 
-  const [savedSuccess, setSavedSuccess] = useState(false);
-
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    showSuccess('Settings updated successfully!');
   };
 
   return (
@@ -167,7 +166,7 @@ const SettingsPage: React.FC = () => {
                   </div>
                   <button
                     type="button"
-                    onClick={() => alert('Requested 10 ALGO from TestNet Faucet! Balance updated.')}
+                    onClick={() => showSuccess('Requested 10 ALGO from TestNet Faucet! Balance updated.')}
                     className="px-4 py-2 bg-blue-brand text-white font-bold text-[12.5px] rounded-full hover:bg-blue-dark transition-colors shrink-0"
                   >
                     Request Faucet
