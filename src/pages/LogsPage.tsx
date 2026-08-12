@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
-import { useToast } from '../context/ToastContext';
 
 interface LogEntry {
   id: string;
@@ -12,79 +11,9 @@ interface LogEntry {
   metadata?: Record<string, any>;
 }
 
-const mockLogs: LogEntry[] = [
-  {
-    id: 'log_9901',
-    timestamp: '16:15:44.210',
-    level: 'x402',
-    taskId: 'task_9f31ab',
-    source: 'Payment Module',
-    message: 'x402 payment challenge verified and settled on-chain',
-    metadata: {
-      txId: 'ALGO_TX_8921A',
-      amount: '3.00 USDC',
-      nonce: '8f0a1c93',
-      agent: 'Flight AI',
-      facilitatorLatency: '410ms'
-    }
-  },
-  {
-    id: 'log_9900',
-    timestamp: '16:15:43.801',
-    level: 'INFO',
-    taskId: 'task_9f31ab',
-    source: 'Router Service',
-    message: 'Calling agent Flight AI (POST /search-flights)',
-    metadata: { endpoint: 'http://localhost:3001/search', mode: 'smart_routing' }
-  },
-  {
-    id: 'log_9899',
-    timestamp: '16:15:43.600',
-    level: 'x402',
-    taskId: 'task_9f31ab',
-    source: 'Flight AI',
-    message: 'HTTP 402 Payment Required returned to Router',
-    metadata: { challengeAmount: '3.00 USDC', nonce: '8f0a1c93', payTo: 'ALGO_FLIGHT_W481' }
-  },
-  {
-    id: 'log_9898',
-    timestamp: '16:15:42.110',
-    level: 'INFO',
-    taskId: 'task_9f31ab',
-    source: 'Router Service',
-    message: 'Received new multi-agent request from user_8231',
-    metadata: { goal: 'Plan a 3-day trip to Goa under ₹20,000', agentsNeeded: ['Flight AI', 'Hotel AI', 'Weather AI'] }
-  },
-  {
-    id: 'log_9897',
-    timestamp: '16:02:11.902',
-    level: 'WARN',
-    taskId: 'task_77a11e',
-    source: 'Insurance Verify AI',
-    message: 'Agent response timeout (5000ms exceeded). Initiating atomic rollback.',
-    metadata: { timeout: true, status: 504 }
-  },
-  {
-    id: 'log_9896',
-    timestamp: '16:02:12.450',
-    level: 'x402',
-    taskId: 'task_77a11e',
-    source: 'Payment Module',
-    message: 'Atomic rollback completed: refund transaction issued for task_77a11e',
-    metadata: { refundTxId: 'REFUND_TX_1102A', refundedAmount: '6.00 USDC' }
-  },
-  {
-    id: 'log_9895',
-    timestamp: '15:45:00.012',
-    level: 'ERROR',
-    source: 'Facilitator Node',
-    message: 'Algorand node RPC endpoint temporarily unreachable, retried via fallback node',
-    metadata: { primaryNode: 'testnet-api.algonode.cloud', fallbackNode: 'testnet-idx.algonode.cloud' }
-  }
-];
+
 
 const LogsPage: React.FC = () => {
-  const { showInfo } = useToast();
   const [filterLevel, setFilterLevel] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
@@ -117,9 +46,7 @@ const LogsPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [isLiveStreaming]);
 
-  const displayLogs = logs.length > 0 ? logs : mockLogs;
-
-  const filteredLogs = displayLogs.filter(l => {
+  const filteredLogs = logs.filter(l => {
     const matchesLevel = filterLevel === 'ALL' || l.level === filterLevel;
     const matchesSearch = l.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           l.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -154,12 +81,6 @@ const LogsPage: React.FC = () => {
               <span>{isLiveStreaming ? 'Live Stream Active' : 'Stream Paused'}</span>
             </button>
 
-            <button 
-              onClick={() => showInfo('Exporting log records to JSON format...')}
-              className="px-4 py-2.5 bg-sky text-blue-brand rounded-full text-[13px] font-bold hover:bg-blue-brand hover:text-white transition-colors"
-            >
-              Export Logs
-            </button>
           </div>
         </div>
 
@@ -212,7 +133,15 @@ const LogsPage: React.FC = () => {
           </div>
 
           <div className="divide-y divide-line">
-            {filteredLogs.map((log) => {
+            {filteredLogs.length === 0 ? (
+              <div className="p-16 text-center">
+                <div className="text-4xl mb-3">📋</div>
+                <h4 className="text-[15px] font-bold text-navy mb-1">No log entries yet</h4>
+                <p className="text-[12.5px] text-slate-500 max-w-[280px] mx-auto">
+                  Submit a task request — all x402 payment events, agent calls, and system events will appear here live.
+                </p>
+              </div>
+            ) : filteredLogs.map((log) => {
               const isExpanded = expandedLogId === log.id;
 
               return (

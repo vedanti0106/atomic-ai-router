@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
-import { useToast } from '../context/ToastContext';
 
 interface Agent {
   name: string;
@@ -14,7 +13,6 @@ interface Agent {
 }
 
 const AgentsPage: React.FC = () => {
-  const { showInfo, showSuccess } = useToast();
   const [agentsList, setAgentsList] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -56,11 +54,7 @@ const AgentsPage: React.FC = () => {
     { label: 'System Uptime', value: '99.9%', icon: '📈' },
   ];
 
-  const recentActivity = [
-    { time: 'Just now', agent: 'Flight AI', action: 'Route search initiated', status: 'Completed' },
-    { time: '1m ago', agent: 'Hotel AI', action: 'Escrow verification complete', status: 'Completed' },
-    { time: '3m ago', agent: 'Finance AI', action: 'USDC micro-payment settled', status: 'Completed' }
-  ];
+
 
   return (
     <DashboardLayout>
@@ -162,20 +156,7 @@ const AgentsPage: React.FC = () => {
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 mt-auto pt-5 border-t border-line">
-                    <button 
-                      onClick={() => showInfo(`Viewing telemetry and metrics for ${agent.name}...`)}
-                      className="py-2 px-3 border border-line rounded-[10px] text-[13px] font-semibold text-navy hover:bg-slate-50 transition-colors cursor-pointer"
-                    >
-                      View Details
-                    </button>
-                    <button 
-                      onClick={() => showSuccess(`Restarting ${agent.name}... Process initialized.`)}
-                      className="py-2 px-3 border border-line rounded-[10px] text-[13px] font-semibold text-navy hover:bg-slate-50 transition-colors cursor-pointer"
-                    >
-                      Restart Agent
-                    </button>
-                  </div>
+
                 </div>
               ))
             )}
@@ -226,44 +207,7 @@ const AgentsPage: React.FC = () => {
           
         </div>
 
-        {/* Bottom Section: Recent Agent Activity */}
-        <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
-          <h3 className="text-[16px] font-bold text-navy mb-5">Recent Agent Activity</h3>
 
-          <div className="overflow-x-auto -mx-1">
-            <table className="w-full text-left border-collapse min-w-[500px]">
-              <thead>
-                <tr className="border-b border-line">
-                  <th className="pb-3 text-[12px] font-semibold text-slate-400 font-sans tracking-wide uppercase">Time</th>
-                  <th className="pb-3 text-[12px] font-semibold text-slate-400 font-sans tracking-wide uppercase">Agent</th>
-                  <th className="pb-3 text-[12px] font-semibold text-slate-400 font-sans tracking-wide uppercase">Action</th>
-                  <th className="pb-3 text-[12px] font-semibold text-slate-400 font-sans tracking-wide uppercase text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentActivity.map((a, i) => (
-                  <tr key={i} className="border-b border-line last:border-b-0">
-                    <td className="py-3.5 text-[13px] font-medium text-slate-500 whitespace-nowrap">{a.time}</td>
-                    <td className="py-3.5 text-[13px] font-bold text-navy whitespace-nowrap flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-sky flex items-center justify-center text-[10px] text-blue-brand shrink-0">
-                        {a.agent.includes('Flight') ? '✈' : a.agent.includes('Weather') ? '☀' : a.agent.includes('Finance') ? '💳' : a.agent.includes('Maps') ? '🗺' : '🛏'}
-                      </div>
-                      {a.agent}
-                    </td>
-                    <td className="py-3.5 text-[13px] font-medium text-slate-600 whitespace-nowrap">{a.action}</td>
-                    <td className="py-3.5 text-right whitespace-nowrap">
-                      <span className={`inline-flex items-center gap-1.5 text-[11.5px] font-bold px-2.5 py-1 rounded-full ${
-                        a.status === 'Completed' ? 'bg-sky text-blue-brand' : 'bg-blue-brand text-white'
-                      }`}>
-                        {a.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
 
       </div>
     </DashboardLayout>

@@ -42,11 +42,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
 
       {/* Right side */}
       <div className="flex items-center gap-3 md:gap-5">
-        {/* Status Badge - hidden on small screens */}
-        <div className="hidden md:flex items-center gap-2 bg-sky px-3 py-1.5 rounded-full border border-blue-brand/20">
-          <span className="w-2 h-2 rounded-full bg-blue-brand animate-pulse"></span>
-          <span className="text-[12px] font-semibold text-blue-brand">AI Router Online</span>
-        </div>
 
         {/* Notifications */}
         <button className="relative w-9 h-9 rounded-full hover:bg-slate-50 flex items-center justify-center text-slate-500 transition-colors">

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
-import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 
 interface Transaction {
@@ -17,7 +16,6 @@ interface Transaction {
 
 
 const PaymentsPage: React.FC = () => {
-  const { showInfo } = useToast();
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,13 +72,15 @@ const PaymentsPage: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => showInfo('Opening Algorand TestNet Explorer for wallet...')}
+            <a
+              href="https://testnet.explorer.perawallet.app"
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-4 py-2.5 bg-sky text-blue-brand rounded-full text-[13px] font-bold hover:bg-blue-brand hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <span>🔗</span>
               <span>Algorand Explorer</span>
-            </button>
+            </a>
           </div>
         </div>
 
@@ -97,7 +97,7 @@ const PaymentsPage: React.FC = () => {
             <div className="text-[26px] font-bold font-display text-navy">
               {routerBalance} <span className="text-[14px] text-blue-brand font-sans">USDC</span>
             </div>
-            <div className="text-[12px] text-slate-400 font-medium mt-1">48.5 ALGO (Gas Reserve)</div>
+            <div className="text-[12px] text-slate-400 font-medium mt-1">On Algorand TestNet</div>
           </div>
 
           <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
