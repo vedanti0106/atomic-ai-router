@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
+import { useToast } from '../context/ToastContext';
 
 type EscrowStatus = 'FUNDED' | 'RELEASED' | 'REFUNDED' | 'DISPUTED';
 

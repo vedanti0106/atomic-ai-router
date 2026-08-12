@@ -22,12 +22,12 @@ const agents = [
 const NewRequestPage: React.FC = () => {
   const { showSuccess } = useToast();
   const [budget, setBudget] = useState(55000);
-  const [requestText, setRequestText] = useState('');
+  // const [requestText, setRequestText] = useState(''); // unused for now
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     showSuccess('Request created successfully! AI Agents dispatched.');
-    setRequestText('');
+    // setRequestText(''); // removed unused state
   };
 
   return (
