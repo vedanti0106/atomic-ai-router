@@ -12,6 +12,7 @@ import CTA from './components/CTA';
 import Footer from './components/Footer';
 import DashboardPage from './pages/DashboardPage';
 import NewRequestPage from './pages/NewRequestPage';
+import EmergencyPage from './pages/EmergencyPage';
 import AgentsPage from './pages/AgentsPage';
 import TasksPage from './pages/TasksPage';
 import PaymentsPage from './pages/PaymentsPage';
@@ -50,6 +51,7 @@ function App() {
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/dashboard/new-request" element={<NewRequestPage />} />
+          <Route path="/dashboard/emergency" element={<EmergencyPage />} />
           <Route path="/dashboard/agents" element={<AgentsPage />} />
           <Route path="/dashboard/tasks" element={<TasksPage />} />
           <Route path="/dashboard/payments" element={<PaymentsPage />} />

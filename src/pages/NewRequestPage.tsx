@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
 import { useToast } from '../context/ToastContext';
 
@@ -12,11 +12,11 @@ const suggestions = [
 ];
 
 const agents = [
-  { name: 'Flight AI', icon: '✈', desc: 'Finds and books optimal flight routes.' },
-  { name: 'Hotel AI', icon: '🛏', desc: 'Searches and reserves accommodations.' },
-  { name: 'Weather AI', icon: '☀', desc: 'Provides real-time weather forecasts.' },
-  { name: 'Maps AI', icon: '🗺', desc: 'Calculates routes and distances.' },
-  { name: 'Finance AI', icon: '💳', desc: 'Handles budgets and secure payments.' },
+  { name: 'Flight AI', icon: 'âœˆ', desc: 'Finds and books optimal flight routes.' },
+  { name: 'Hotel AI', icon: 'ðŸ›', desc: 'Searches and reserves accommodations.' },
+  { name: 'Weather AI', icon: 'â˜€', desc: 'Provides real-time weather forecasts.' },
+  { name: 'Maps AI', icon: 'ðŸ—º', desc: 'Calculates routes and distances.' },
+  { name: 'Finance AI', icon: 'ðŸ’³', desc: 'Handles budgets and secure payments.' },
 ];
 
 const NewRequestPage: React.FC = () => {
@@ -34,12 +34,38 @@ const NewRequestPage: React.FC = () => {
     <DashboardLayout>
       <div className="max-w-7xl mx-auto pb-10">
         
-        {/* Page Header */}
+        {/* Page Header with Domain Switcher */}
         <div className="mb-8">
-          <h1 className="text-[24px] md:text-[32px] font-bold font-display text-navy leading-tight">Create New Request</h1>
-          <p className="text-[14px] md:text-[15px] text-slate-500 mt-1">
-            Describe what you need and AI Router will automatically coordinate the best AI agents to complete your request.
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-[24px] md:text-[32px] font-bold font-display text-navy leading-tight">Create New Request</h1>
+              <p className="text-[14px] md:text-[15px] text-slate-500 mt-1">
+                Describe what you need and AI Router will automatically coordinate the best AI agents to complete your request.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Link 
+                to="/dashboard/new-request"
+                className="px-4 py-2 rounded-lg font-medium bg-blue-600 text-white flex items-center gap-2"
+              >
+                <span>âœˆï¸</span>
+                <span>Travel</span>
+              </Link>
+              <Link 
+                to="/dashboard/emergency"
+                className="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2"
+              >
+                <span>ðŸš‘</span>
+                <span>Emergency</span>
+              </Link>
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-700">
+              <span className="font-bold">Current Domain:</span> Travel & Tourism
+              {' '}â€¢ <span className="text-blue-600 font-medium">Switch to Emergency Response to demonstrate platform generality</span>
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.8fr_1fr] gap-6">
@@ -52,7 +78,7 @@ const NewRequestPage: React.FC = () => {
               <h3 className="text-[16px] font-bold text-navy mb-4">1. Request Description</h3>
               <textarea
                 className="w-full h-[140px] bg-slate-50 border border-line rounded-[16px] p-5 text-[14px] text-ink focus:outline-none focus:border-blue-brand focus:bg-white transition-colors resize-none placeholder-slate-400"
-                placeholder={'Example:\nPlan a 5-day trip to Japan under ₹80,000 including flights, hotels, local transport, restaurants and weather updates.'}
+                placeholder={'Example:\nPlan a 5-day trip to Japan under â‚¹80,000 including flights, hotels, local transport, restaurants and weather updates.'}
               ></textarea>
               <div className="flex flex-wrap gap-2 mt-4">
                 {suggestions.map(s => (
@@ -91,7 +117,7 @@ const NewRequestPage: React.FC = () => {
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-[16px] font-bold text-navy">3. Budget</h3>
                 <div className="text-[18px] font-display font-bold text-blue-brand">
-                  ₹{budget.toLocaleString()}
+                  â‚¹{budget.toLocaleString()}
                 </div>
               </div>
               
@@ -106,8 +132,8 @@ const NewRequestPage: React.FC = () => {
                   className="w-full h-1.5 bg-line rounded-full appearance-none cursor-pointer accent-blue-brand outline-none"
                 />
                 <div className="flex justify-between items-center mt-3 text-[12px] font-medium text-slate-400">
-                  <span>₹10K</span>
-                  <span>₹1L</span>
+                  <span>â‚¹10K</span>
+                  <span>â‚¹1L</span>
                 </div>
               </div>
             </div>
@@ -159,7 +185,7 @@ const NewRequestPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-center text-[13px]">
                   <span className="text-slate-500 font-medium">Estimated Cost</span>
-                  <span className="font-bold text-navy">₹45 - ₹120</span>
+                  <span className="font-bold text-navy">â‚¹45 - â‚¹120</span>
                 </div>
                 <div className="flex justify-between items-center text-[13px]">
                   <span className="text-slate-500 font-medium">Estimated Time</span>
@@ -174,7 +200,7 @@ const NewRequestPage: React.FC = () => {
               <div className="pt-5 border-t border-line">
                 <div className="text-[12px] font-semibold text-slate-400 uppercase tracking-wider mb-3">Security</div>
                 <div className="flex items-center gap-2 mb-1.5">
-                  <div className="text-[16px]">🔒</div>
+                  <div className="text-[16px]">ðŸ”’</div>
                   <div className="text-[13px] font-bold text-navy">x402 Secure Payments</div>
                 </div>
                 <div className="flex items-center gap-2 pl-6">
@@ -193,3 +219,4 @@ const NewRequestPage: React.FC = () => {
 };
 
 export default NewRequestPage;
+

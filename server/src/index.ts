@@ -175,6 +175,100 @@ app.get('/api/escrow/:taskId', async (c) => {
   }
 });
 
+// ─── Medical Emergency Endpoints ──────────────────────────────────────────────
+app.get('/api/medical/hospital-beds', async (c) => {
+  try {
+    const location = c.req.query('location') || 'Pune City Center';
+    
+    // In a real implementation, this would import and call getHospitalBeds
+    // For demo, return mock response
+    return c.json({
+      success: true,
+      location,
+      timestamp: new Date().toISOString(),
+      hospitals: [
+        {
+          name: 'Ruby Hall Clinic',
+          address: '40, Sassoon Road, Pune 411001',
+          icuBedsAvailable: 8,
+          totalIcuBeds: 25,
+          distanceKm: 2.5,
+          contact: '+91 20 2612 6666',
+          estimatedArrivalTime: '8 minutes'
+        },
+        {
+          name: 'Jehangir Hospital',
+          address: '32, Sasoon Road, Pune 411001',
+          icuBedsAvailable: 5,
+          totalIcuBeds: 20,
+          distanceKm: 3.1,
+          contact: '+91 20 2605 0505',
+          estimatedArrivalTime: '9 minutes'
+        },
+        {
+          name: 'Aditya Birla Memorial Hospital',
+          address: 'Aditya Birla Hospital Marg, Pimpri-Chinchwad',
+          icuBedsAvailable: 12,
+          totalIcuBeds: 35,
+          distanceKm: 8.2,
+          contact: '+91 20 3071 7500',
+          estimatedArrivalTime: '25 minutes'
+        }
+      ],
+      message: 'Found 5 hospitals with ICU beds available'
+    });
+  } catch (err: any) {
+    console.error('[GET /api/medical/hospital-beds]', err);
+    return c.json({ error: err.message ?? 'Internal error' }, 500);
+  }
+});
+
+app.get('/api/medical/blood-supply', async (c) => {
+  try {
+    const location = c.req.query('location') || 'Pune City Center';
+    const bloodType = c.req.query('bloodType') || 'O-';
+    
+    // In a real implementation, this would import and call getBloodSupply
+    // For demo, return mock response
+    return c.json({
+      success: true,
+      location,
+      bloodType,
+      timestamp: new Date().toISOString(),
+      bloodBanks: [
+        {
+          name: 'Pune District Blood Bank',
+          address: 'Sassoon General Hospital Campus, Pune 411001',
+          unitsAvailable: 15,
+          distanceKm: 2.5,
+          contact: '+91 20 2612 8000',
+          estimatedArrivalTime: '8 minutes'
+        },
+        {
+          name: 'Ruby Hall Blood Bank',
+          address: 'Ruby Hall Clinic, Sassoon Road',
+          unitsAvailable: 10,
+          distanceKm: 2.6,
+          contact: '+91 20 2612 6666',
+          estimatedArrivalTime: '8 minutes'
+        },
+        {
+          name: 'Aditya Birla Blood Centre',
+          address: 'Aditya Birla Hospital, Pimpri-Chinchwad',
+          unitsAvailable: 8,
+          distanceKm: 8.2,
+          contact: '+91 20 3071 7500',
+          estimatedArrivalTime: '25 minutes'
+        }
+      ],
+      message: `Found 3 blood banks with ${bloodType} blood available`
+    });
+  } catch (err: any) {
+    console.error('[GET /api/medical/blood-supply]', err);
+    return c.json({ error: err.message ?? 'Internal error' }, 500);
+  }
+});
+
 // ─── Start server ─────────────────────────────────────────────────────────────
 const PORT = Number(process.env.PORT ?? 3001);
 

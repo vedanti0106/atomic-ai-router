@@ -5,6 +5,7 @@ import { TravelLogoIcon } from '../TravelLogo';
 const navItems = [
   { label: 'Dashboard', icon: '🏠', path: '/dashboard' },
   { label: 'New Request', icon: '➕', path: '/dashboard/new-request' },
+  { label: 'Emergency Response', icon: '🚑', path: '/dashboard/emergency' },
   { label: 'Agents', icon: '🤖', path: '/dashboard/agents' },
   { label: 'Tasks', icon: '✅', path: '/dashboard/tasks' },
   { label: 'Payments', icon: '💳', path: '/dashboard/payments' },

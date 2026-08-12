@@ -3,8 +3,8 @@ import DashboardLayout from '../components/dashboard/DashboardLayout';
 import { useToast } from '../context/ToastContext';
 
 const metrics = [
-  { label: 'Total Agents', value: '23', icon: '🤖' },
-  { label: 'Online', value: '21', icon: '✅' },
+  { label: 'Total Agents', value: '25', icon: '🤖' },
+  { label: 'Online', value: '23', icon: '✅' },
   { label: 'Average Latency', value: '42ms', icon: '⚡' },
   { label: 'Tasks Completed Today', value: '2,483', icon: '📈' },
 ];
@@ -34,6 +34,16 @@ const agents = [
     name: 'Maps AI', icon: '🗺', desc: 'Calculates routes and distances.', status: 'Online',
     load: '34%', latency: '35ms', success: '99.9%',
     tags: ['Navigation', 'Traffic', 'Distance']
+  },
+  {
+    name: 'Hospital Bed AI', icon: '🏥', desc: 'Finds nearest hospitals with ICU bed availability.', status: 'Online',
+    load: '35%', latency: '28ms', success: '99.8%',
+    tags: ['Emergency', 'ICU', 'Medical']
+  },
+  {
+    name: 'Blood Bank AI', icon: '💉', desc: 'Locates blood banks with specific blood type stock.', status: 'Online',
+    load: '22%', latency: '32ms', success: '99.9%',
+    tags: ['Emergency', 'Blood', 'Medical']
   },
 ];
 
