@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { TravelLogoIcon } from '../TravelLogo';
 import { 
@@ -11,7 +11,8 @@ import {
   FileText, 
   Settings,
   Sparkles,
-  X
+  X,
+  AlertCircle
 } from 'lucide-react';
 
 interface NavItem {
@@ -43,10 +44,19 @@ const navItems: NavItem[] = [
     iconBg: 'bg-purple-100 text-purple-600'
   },
   { 
+    label: 'Emergency Response', 
+    path: '/dashboard/emergency', 
+    icon: <AlertCircle className="w-4 h-4" />, 
+    badge: 'NEW',
+    hoverClass: 'hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 hover:text-red-600 hover:border-l-4 hover:border-red-500',
+    activeClass: 'bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-md shadow-red-500/25 font-bold',
+    iconBg: 'bg-red-100 text-red-600'
+  },
+  { 
     label: 'Agents', 
     path: '/dashboard/agents', 
     icon: <Bot className="w-4 h-4" />, 
-    badge: '23',
+    badge: '25',
     hoverClass: 'hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 hover:text-emerald-600 hover:border-l-4 hover:border-emerald-500',
     activeClass: 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/25 font-bold',
     iconBg: 'bg-emerald-100 text-emerald-600'
@@ -176,6 +186,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                       ? 'bg-white/25 text-white' 
                       : item.badge === 'HOT'
                       ? 'bg-purple-100 text-purple-700 font-extrabold group-hover:bg-purple-600 group-hover:text-white'
+                      : item.badge === 'NEW'
+                      ? 'bg-red-100 text-red-700 font-extrabold group-hover:bg-red-600 group-hover:text-white'
                       : 'bg-slate-100 text-slate-500 group-hover:bg-white group-hover:text-navy'
                   }`}>
                     {item.badge}
