@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const SearchSection: React.FC = () => {
   return (
@@ -69,13 +70,13 @@ const SearchSection: React.FC = () => {
           </div>
 
           {/* Button */}
-          <button className="bg-blue-brand hover:bg-blue-dark text-white rounded-[16px] padding-[18px_30px] h-[56px] px-[30px] font-semibold text-[15px] flex items-center justify-center gap-[10px] white-space-nowrap transition-colors w-full xl:w-auto mt-4 xl:mt-0">
+          <Link to="/dashboard" className="bg-blue-brand hover:bg-blue-dark text-white rounded-[16px] padding-[18px_30px] h-[56px] px-[30px] font-semibold text-[15px] flex items-center justify-center gap-[10px] white-space-nowrap transition-colors w-full xl:w-auto mt-4 xl:mt-0">
             <span>Explore Now</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <circle cx="11" cy="11" r="7" stroke="#fff" strokeWidth="1.8" />
               <path d="M20 20L16.5 16.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
             </svg>
-          </button>
+          </Link>
         </div>
       </div>
     </section>

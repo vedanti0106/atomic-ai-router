@@ -119,6 +119,7 @@ const mockTasks: TaskItem[] = [
 ];
 
 const TasksPage: React.FC = () => {
+  const { showInfo, showSuccess } = useToast();
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
@@ -144,7 +145,7 @@ const TasksPage: React.FC = () => {
             </p>
           </div>
           <button 
-            onClick={() => alert('Simulating new multi-agent atomic request execution...')}
+            onClick={() => showInfo('Simulating new multi-agent atomic request execution...')}
             className="self-start px-5 py-3 bg-blue-brand hover:bg-blue-dark text-white rounded-full text-[14px] font-bold transition-colors shadow-sm flex items-center gap-2"
           >
             <span>⚡</span>
@@ -449,7 +450,7 @@ const TasksPage: React.FC = () => {
                   Close
                 </button>
                 <button 
-                  onClick={() => alert(`Fetching official x402 receipt for ${selectedTask.id}...`)}
+                  onClick={() => showSuccess(`Fetching official x402 receipt for ${selectedTask.id}...`)}
                   className="px-5 py-2.5 bg-blue-brand text-white font-bold rounded-full text-[13px] hover:bg-blue-dark transition-colors shadow-sm"
                 >
                   Download Receipt

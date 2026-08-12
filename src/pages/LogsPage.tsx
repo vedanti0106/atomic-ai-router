@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
+import { useToast } from '../context/ToastContext';
 
 interface LogEntry {
   id: string;
@@ -162,6 +163,7 @@ const mockLogs: LogEntry[] = [
 ];
 
 const LogsPage: React.FC = () => {
+  const { showInfo } = useToast();
   const [filterLevel, setFilterLevel] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
@@ -202,7 +204,7 @@ const LogsPage: React.FC = () => {
             </button>
 
             <button 
-              onClick={() => alert('Exporting log records to JSON format...')}
+              onClick={() => showInfo('Exporting log records to JSON format...')}
               className="px-4 py-2.5 bg-sky text-blue-brand rounded-full text-[13px] font-bold hover:bg-blue-brand hover:text-white transition-colors"
             >
               Export Logs
