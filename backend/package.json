@@ -1,0 +1,35 @@
+{
+  "name": "atomic-ai-router-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:reset": "tsx src/db/reset.ts --force"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@x402-avm/avm": "^2.6.1",
+    "@x402-avm/core": "^2.6.1",
+    "@x402-avm/hono": "^2.6.1",
+    "algosdk": "^3.6.0",
+    "bcryptjs": "^3.0.2",
+    "better-sqlite3": "^11.8.1",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.39.3",
+    "hono": "^4.7.2",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.13.1",
+    "drizzle-kit": "^0.30.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

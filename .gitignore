@@ -23,3 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Databases
+sqlite.db
+sqlite.db-shm
+sqlite.db-wal
+backend/sqlite.db
+backend/sqlite.db-shm
+backend/sqlite.db-wal

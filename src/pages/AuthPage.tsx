@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Zap, 
@@ -16,12 +16,14 @@ import {
   UserPlus
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import heroFriends from '../assets/hero-friends.png';
 
 const AuthPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { showSuccess, showInfo } = useToast();
+  const { user, refreshUser } = useAuth();
+  const { showSuccess, showError, showInfo } = useToast();
 
   // Determine initial mode from path (/signup or /signin)
   const isSignInInitial = location.pathname === '/signin';
@@ -38,27 +40,104 @@ const AuthPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (mode === 'signup') {
       if (password && confirmPassword && password !== confirmPassword) {
         showInfo('Passwords do not match. Please verify.');
         return;
       }
-      showSuccess(`Account created successfully! Welcome to AI Router, ${fullName || 'Traveler'}.`);
+      try {
+        const response = await fetch('http://localhost:3001/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: fullName, email, password }),
+          credentials: 'include',
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || 'Registration failed');
+        }
+        showSuccess(`Account created successfully! Welcome to AI Router, ${fullName || 'Traveler'}.`);
+        await refreshUser();
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1200);
+      } catch (err: any) {
+        showError(err.message || 'Something went wrong during registration.');
+      }
     } else {
-      showSuccess('Signed in successfully! Redirecting to Dashboard...');
+      try {
+        const response = await fetch('http://localhost:3001/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+          credentials: 'include',
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || 'Authentication failed');
+        }
+        showSuccess('Signed in successfully! Redirecting to Dashboard...');
+        await refreshUser();
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1200);
+      } catch (err: any) {
+        showError(err.message || 'Invalid email or password.');
+      }
     }
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 1200);
   };
 
-  const handleSocialLogin = (provider: string) => {
-    showSuccess(`Connecting with ${provider}... Success!`);
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 1200);
+  const handleSocialLogin = async (provider: string) => {
+    showInfo(`Connecting with ${provider}...`);
+    const mockEmail = 'sayali.google@gmail.com';
+    const mockPassword = 'GoogleDemoPassword123!';
+    const mockName = 'Sayali';
+    
+    try {
+      let response = await fetch('http://localhost:3001/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: mockEmail, password: mockPassword }),
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        // Mock register the google user first
+        response = await fetch('http://localhost:3001/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: mockName, email: mockEmail, password: mockPassword }),
+          credentials: 'include',
+        });
+        if (!response.ok) {
+          throw new Error('OAuth mock signup failed');
+        }
+      }
+      
+      showSuccess(`Successfully connected with ${provider}! Redirecting...`);
+      await refreshUser();
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1200);
+    } catch (err: any) {
+      showError(`Mock OAuth connection failed: ${err.message}`);
+    }
   };
 
   return (

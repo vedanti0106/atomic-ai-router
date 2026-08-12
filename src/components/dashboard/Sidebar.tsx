@@ -8,6 +8,8 @@ const navItems = [
   { label: 'Tasks', icon: '✅', path: '/dashboard/tasks' },
   { label: 'Payments', icon: '💳', path: '/dashboard/payments' },
   { label: 'Logs', icon: '📄', path: '/dashboard/logs' },
+  { label: 'Database', icon: '🗄️', path: '/dashboard/database' },
+  { label: 'x402 Sandbox', icon: '⚡', path: '/dashboard/x402-sandbox' },
   { label: 'Settings', icon: '⚙', path: '/dashboard/settings' },
 ];
 

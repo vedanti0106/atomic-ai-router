@@ -1,10 +1,15 @@
 import React from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 interface HeaderProps {
   onMenuClick: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
+  const { user } = useAuth();
+  const userName = user?.name || 'User';
+  const userInitial = userName.charAt(0).toUpperCase();
+
   return (
     <header className="h-[64px] bg-white border-b border-line flex items-center justify-between px-4 md:px-8 sticky top-0 z-30">
 
@@ -56,10 +61,10 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
         {/* User */}
         <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity">
           <div className="w-8 h-8 rounded-full bg-navy flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
-            V
+            {userInitial}
           </div>
           <div className="hidden md:block">
-            <div className="text-[13px] font-semibold text-navy leading-tight">Vedanti</div>
+            <div className="text-[13px] font-semibold text-navy leading-tight">{userName}</div>
             <div className="text-[11px] text-slate-500">Admin</div>
           </div>
         </div>

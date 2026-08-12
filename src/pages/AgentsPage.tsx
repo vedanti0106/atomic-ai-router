@@ -1,51 +1,67 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
 import { useToast } from '../context/ToastContext';
 
-const metrics = [
-  { label: 'Total Agents', value: '23', icon: '🤖' },
-  { label: 'Online', value: '21', icon: '✅' },
-  { label: 'Average Latency', value: '42ms', icon: '⚡' },
-  { label: 'Tasks Completed Today', value: '2,483', icon: '📈' },
-];
-
-const agents = [
-  {
-    name: 'Flight AI', icon: '✈', desc: 'Finds and books optimal flight routes.', status: 'Online',
-    load: '68%', latency: '38ms', success: '99.8%',
-    tags: ['Flight Search', 'Price Prediction', 'Booking']
-  },
-  {
-    name: 'Hotel AI', icon: '🛏', desc: 'Searches and reserves accommodations.', status: 'Online',
-    load: '45%', latency: '65ms', success: '99.9%',
-    tags: ['Hotel Search', 'Reviews', 'Booking']
-  },
-  {
-    name: 'Weather AI', icon: '☀', desc: 'Provides real-time weather forecasts.', status: 'Online',
-    load: '12%', latency: '28ms', success: '100%',
-    tags: ['Forecast', 'Alerts', 'Climate']
-  },
-  {
-    name: 'Finance AI', icon: '💳', desc: 'Handles budgets and secure payments.', status: 'Busy',
-    load: '92%', latency: '125ms', success: '99.5%',
-    tags: ['Budget', 'Currency', 'Optimization']
-  },
-  {
-    name: 'Maps AI', icon: '🗺', desc: 'Calculates routes and distances.', status: 'Online',
-    load: '34%', latency: '35ms', success: '99.9%',
-    tags: ['Navigation', 'Traffic', 'Distance']
-  },
-];
-
-const activity = [
-  { time: '09:42', agent: 'Flight AI', action: 'Found 12 flights', status: 'Completed' },
-  { time: '09:45', agent: 'Weather AI', action: 'Forecast updated', status: 'Completed' },
-  { time: '09:48', agent: 'Finance AI', action: 'Budget optimized', status: 'Completed' },
-  { time: '09:51', agent: 'Maps AI', action: 'Route generated', status: 'Running' },
-];
+interface Agent {
+  name: string;
+  icon: string;
+  desc: string;
+  status: string;
+  load: string;
+  latency: string;
+  success: string;
+  tags: string[];
+}
 
 const AgentsPage: React.FC = () => {
   const { showInfo, showSuccess } = useToast();
+  const [agentsList, setAgentsList] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const fetchAgents = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/task/agents', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to retrieve active agents.');
+      }
+      const data = await response.json();
+      setAgentsList(data.agents || []);
+      setError('');
+    } catch (err: any) {
+      console.error(err);
+      setError('Could not connect to Hono backend. Ensure the backend server is running on port 3001.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAgents();
+    const interval = setInterval(fetchAgents, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const totalAgents = agentsList.length;
+  const onlineAgents = agentsList.filter(a => a.status === 'Online').length;
+  const busyAgents = agentsList.filter(a => a.status === 'Busy').length;
+
+  const displayMetrics = [
+    { label: 'Total Agents', value: totalAgents.toString(), icon: '🤖' },
+    { label: 'Online', value: onlineAgents.toString(), icon: '✅' },
+    { label: 'Average Latency', value: totalAgents === 0 ? '0ms' : '42ms', icon: '⚡' },
+    { label: 'System Uptime', value: '99.9%', icon: '📈' },
+  ];
+
+  const recentActivity = [
+    { time: 'Just now', agent: 'Flight AI', action: 'Route search initiated', status: 'Completed' },
+    { time: '1m ago', agent: 'Hotel AI', action: 'Escrow verification complete', status: 'Completed' },
+    { time: '3m ago', agent: 'Finance AI', action: 'USDC micro-payment settled', status: 'Completed' }
+  ];
+
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto pb-10">
@@ -58,9 +74,15 @@ const AgentsPage: React.FC = () => {
           </p>
         </div>
 
+        {error && (
+          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+            {error}
+          </div>
+        )}
+
         {/* Top Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-          {metrics.map((m, idx) => (
+          {displayMetrics.map((m, idx) => (
             <div key={idx} className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
               <div className="flex justify-between items-start mb-4">
                 <div className="w-11 h-11 rounded-full bg-sky flex items-center justify-center text-xl text-blue-brand">
@@ -82,66 +104,81 @@ const AgentsPage: React.FC = () => {
           
           {/* Main Section: Agent Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {agents.map((agent) => (
-              <div key={agent.name} className="bg-white rounded-[24px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] flex flex-col">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-sky flex items-center justify-center text-[20px] text-blue-brand shrink-0">
-                      {agent.icon}
+            {loading ? (
+              <div className="col-span-2 p-12 text-center bg-white rounded-[24px] border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
+                <div className="w-8 h-8 border-4 border-sky border-t-blue-brand rounded-full animate-spin mx-auto mb-3"></div>
+                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Retrieving Connected Agents...</span>
+              </div>
+            ) : agentsList.length === 0 ? (
+              <div className="col-span-2 p-16 text-center bg-white rounded-[24px] border border-line border-dashed">
+                <div className="text-4xl mb-3">🤖</div>
+                <h4 className="text-[15px] font-bold text-navy mb-1">No AI Agents Registered</h4>
+                <p className="text-[12.5px] text-slate-500 max-w-[280px] mx-auto">
+                  Seed the database using the reset script to register the standard AI routing nodes.
+                </p>
+              </div>
+            ) : (
+              agentsList.map((agent) => (
+                <div key={agent.name} className="bg-white rounded-[24px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] flex flex-col">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-sky flex items-center justify-center text-[20px] text-blue-brand shrink-0">
+                        {agent.icon}
+                      </div>
+                      <div>
+                        <div className="text-[16px] font-bold text-navy">{agent.name}</div>
+                        <div className="text-[12px] text-slate-500 leading-snug max-w-[160px]">{agent.desc}</div>
+                      </div>
+                    </div>
+                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide shrink-0 ${
+                      agent.status === 'Online' ? 'bg-[#E3FBF5] text-[#0E7D69]' : 
+                      agent.status === 'Busy' ? 'bg-[#FFF3E0] text-[#E65100]' : 
+                      'bg-slate-100 text-slate-500'
+                    }`}>
+                      {agent.status}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3 mb-5 p-3 bg-slate-50 rounded-[12px] border border-line/50">
+                    <div>
+                      <div className="text-[11px] text-slate-500 font-medium mb-0.5">Load</div>
+                      <div className="text-[13px] font-bold text-navy">{agent.load}</div>
                     </div>
                     <div>
-                      <div className="text-[16px] font-bold text-navy">{agent.name}</div>
-                      <div className="text-[12px] text-slate-500 leading-snug max-w-[160px]">{agent.desc}</div>
+                      <div className="text-[11px] text-slate-500 font-medium mb-0.5">Latency</div>
+                      <div className="text-[13px] font-bold text-navy">{agent.latency}</div>
+                    </div>
+                    <div>
+                      <div className="text-[11px] text-slate-500 font-medium mb-0.5">Success</div>
+                      <div className="text-[13px] font-bold text-navy">{agent.success}</div>
                     </div>
                   </div>
-                  <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide shrink-0 ${
-                    agent.status === 'Online' ? 'bg-[#E3FBF5] text-[#0E7D69]' : 
-                    agent.status === 'Busy' ? 'bg-[#FFF3E0] text-[#E65100]' : 
-                    'bg-slate-100 text-slate-500'
-                  }`}>
-                    {agent.status}
-                  </span>
-                </div>
 
-                <div className="grid grid-cols-3 gap-3 mb-5 p-3 bg-slate-50 rounded-[12px] border border-line/50">
-                  <div>
-                    <div className="text-[11px] text-slate-500 font-medium mb-0.5">Load</div>
-                    <div className="text-[13px] font-bold text-navy">{agent.load}</div>
+                  <div className="flex flex-wrap gap-1.5 mb-6 flex-1">
+                    {agent.tags.map(tag => (
+                      <span key={tag} className="px-2.5 py-1 bg-sky text-blue-brand text-[11px] font-medium rounded-full">
+                        {tag}
+                      </span>
+                    ))}
                   </div>
-                  <div>
-                    <div className="text-[11px] text-slate-500 font-medium mb-0.5">Latency</div>
-                    <div className="text-[13px] font-bold text-navy">{agent.latency}</div>
-                  </div>
-                  <div>
-                    <div className="text-[11px] text-slate-500 font-medium mb-0.5">Success</div>
-                    <div className="text-[13px] font-bold text-navy">{agent.success}</div>
-                  </div>
-                </div>
 
-                <div className="flex flex-wrap gap-1.5 mb-6 flex-1">
-                  {agent.tags.map(tag => (
-                    <span key={tag} className="px-2.5 py-1 bg-sky text-blue-brand text-[11px] font-medium rounded-full">
-                      {tag}
-                    </span>
-                  ))}
+                  <div className="grid grid-cols-2 gap-3 mt-auto pt-5 border-t border-line">
+                    <button 
+                      onClick={() => showInfo(`Viewing telemetry and metrics for ${agent.name}...`)}
+                      className="py-2 px-3 border border-line rounded-[10px] text-[13px] font-semibold text-navy hover:bg-slate-50 transition-colors cursor-pointer"
+                    >
+                      View Details
+                    </button>
+                    <button 
+                      onClick={() => showSuccess(`Restarting ${agent.name}... Process initialized.`)}
+                      className="py-2 px-3 border border-line rounded-[10px] text-[13px] font-semibold text-navy hover:bg-slate-50 transition-colors cursor-pointer"
+                    >
+                      Restart Agent
+                    </button>
+                  </div>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3 mt-auto pt-5 border-t border-line">
-                  <button 
-                    onClick={() => showInfo(`Viewing telemetry and metrics for ${agent.name}...`)}
-                    className="py-2 px-3 border border-line rounded-[10px] text-[13px] font-semibold text-navy hover:bg-slate-50 transition-colors"
-                  >
-                    View Details
-                  </button>
-                  <button 
-                    onClick={() => showSuccess(`Restarting ${agent.name}... Process initialized.`)}
-                    className="py-2 px-3 border border-line rounded-[10px] text-[13px] font-semibold text-navy hover:bg-slate-50 transition-colors"
-                  >
-                    Restart Agent
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Right Panel: Agent Health */}
@@ -165,19 +202,19 @@ const AgentsPage: React.FC = () => {
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center text-[13px]">
                   <span className="text-slate-500 font-medium">Online Agents</span>
-                  <span className="font-bold text-navy">21</span>
+                  <span className="font-bold text-navy">{onlineAgents}</span>
                 </div>
                 <div className="flex justify-between items-center text-[13px]">
                   <span className="text-slate-500 font-medium">Busy</span>
-                  <span className="font-bold text-navy">2</span>
+                  <span className="font-bold text-navy">{busyAgents}</span>
                 </div>
                 <div className="flex justify-between items-center text-[13px]">
                   <span className="text-slate-500 font-medium">Offline</span>
-                  <span className="font-bold text-navy">0</span>
+                  <span className="font-bold text-navy">{totalAgents - onlineAgents - busyAgents}</span>
                 </div>
                 <div className="flex justify-between items-center text-[13px] pt-4 border-t border-line">
                   <span className="text-slate-500 font-medium">Average Response</span>
-                  <span className="font-bold text-navy">42ms</span>
+                  <span className="font-bold text-navy">{totalAgents === 0 ? '0ms' : '42ms'}</span>
                 </div>
                 <div className="flex justify-between items-center text-[13px]">
                   <span className="text-slate-500 font-medium">System Status</span>
@@ -204,7 +241,7 @@ const AgentsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {activity.map((a, i) => (
+                {recentActivity.map((a, i) => (
                   <tr key={i} className="border-b border-line last:border-b-0">
                     <td className="py-3.5 text-[13px] font-medium text-slate-500 whitespace-nowrap">{a.time}</td>
                     <td className="py-3.5 text-[13px] font-bold text-navy whitespace-nowrap flex items-center gap-2">

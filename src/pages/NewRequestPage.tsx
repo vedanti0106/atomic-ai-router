@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 const suggestions = [
   'Plan a trip',
@@ -20,14 +22,59 @@ const agents = [
 ];
 
 const NewRequestPage: React.FC = () => {
-  const { showSuccess } = useToast();
   const [budget, setBudget] = useState(55000);
-  const [requestText, setRequestText] = useState('');
+  const [goal, setGoal] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    showSuccess('Request created successfully! AI Agents dispatched.');
-    setRequestText('');
+  const { refreshUser } = useAuth();
+  const { showSuccess, showError } = useToast();
+  const navigate = useNavigate();
+
+  const handleSuggestionClick = (s: string) => {
+    setGoal(prev => prev ? `${prev} and ${s.toLowerCase()}` : `I want to ${s.toLowerCase()}`);
+  };
+
+  const handleCreateRequest = async () => {
+    if (!goal.trim()) {
+      showError('Please describe your request.');
+      return;
+    }
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/task', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          goal: goal,
+          amount: 10.0, // Fixed 10.0 USDC for demo task
+        }),
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create task');
+      }
+
+      showSuccess(`Task launched successfully! Task ID: ${data.taskId}`);
+      setGoal('');
+      
+      // Refresh user balance in header
+      await refreshUser();
+      
+      setTimeout(() => {
+        navigate('/dashboard/tasks');
+      }, 1500);
+
+    } catch (err: any) {
+      showError(err.message || 'Failed to connect to Hono backend.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,18 +97,27 @@ const NewRequestPage: React.FC = () => {
             {/* 1. Request Description */}
             <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
               <h3 className="text-[16px] font-bold text-navy mb-4">1. Request Description</h3>
+
+
               <textarea
+                value={goal}
+                onChange={(e) => setGoal(e.target.value)}
                 className="w-full h-[140px] bg-slate-50 border border-line rounded-[16px] p-5 text-[14px] text-ink focus:outline-none focus:border-blue-brand focus:bg-white transition-colors resize-none placeholder-slate-400"
                 placeholder={'Example:\nPlan a 5-day trip to Japan under ₹80,000 including flights, hotels, local transport, restaurants and weather updates.'}
               ></textarea>
               <div className="flex flex-wrap gap-2 mt-4">
                 {suggestions.map(s => (
-                  <span key={s} className="px-3 py-1.5 bg-sky text-blue-brand text-[12px] font-medium rounded-full cursor-pointer hover:bg-blue-brand hover:text-white transition-colors border border-transparent">
+                  <span 
+                    key={s} 
+                    onClick={() => handleSuggestionClick(s)}
+                    className="px-3 py-1.5 bg-sky text-blue-brand text-[12px] font-medium rounded-full cursor-pointer hover:bg-blue-brand hover:text-white transition-colors border border-transparent"
+                  >
                     {s}
                   </span>
                 ))}
               </div>
             </div>
+
 
             {/* 2. Execution Mode */}
             <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
@@ -114,11 +170,13 @@ const NewRequestPage: React.FC = () => {
 
             {/* Submit Button */}
             <button 
-              onClick={handleSubmit}
-              className="w-full bg-blue-brand hover:bg-blue-dark text-white rounded-full py-4 text-[15px] font-bold transition-colors shadow-md mt-2"
+              onClick={handleCreateRequest}
+              disabled={loading}
+              className="w-full bg-blue-brand hover:bg-blue-dark text-white rounded-full py-4 text-[15px] font-bold transition-colors shadow-md mt-2 cursor-pointer disabled:opacity-50"
             >
-              Create Request
+              {loading ? 'Processing Atomic Request...' : 'Create Request'}
             </button>
+
 
           </div>
 

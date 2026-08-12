@@ -36,12 +36,6 @@ const SettingsPage: React.FC = () => {
               Manage Algorand wallet settings, x402 protocol limits, automatic rollback policies, and Facilitator endpoints.
             </p>
           </div>
-          {savedSuccess && (
-            <div className="px-4 py-2.5 bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[13px] rounded-full flex items-center gap-2">
-              <span>✅</span>
-              <span>Settings updated successfully!</span>
-            </div>
-          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6">

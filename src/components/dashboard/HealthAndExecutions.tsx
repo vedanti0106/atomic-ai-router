@@ -1,14 +1,10 @@
 import React from 'react';
 
-const executions = [
-  { time: '14:22:10', req: 'REQ-9942', agent: 'Flight AI', status: 'Success' },
-  { time: '14:22:08', req: 'REQ-9941', agent: 'Hotel AI', status: 'Success' },
-  { time: '14:22:05', req: 'REQ-9940', agent: 'Weather AI', status: 'Success' },
-  { time: '14:21:59', req: 'REQ-9939', agent: 'Finance AI', status: 'Failed' },
-  { time: '14:21:50', req: 'REQ-9938', agent: 'Maps AI', status: 'Success' },
-];
+interface HealthAndExecutionsProps {
+  executions: Array<{ time: string; req: string; agent: string; status: string }>;
+}
 
-const HealthAndExecutions: React.FC = () => {
+const HealthAndExecutions: React.FC<HealthAndExecutionsProps> = ({ executions }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
       
@@ -68,20 +64,28 @@ const HealthAndExecutions: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {executions.map((e, i) => (
-                <tr key={i} className="border-b border-line last:border-b-0">
-                  <td className="py-3.5 text-[13px] font-medium text-slate-500 whitespace-nowrap">{e.time}</td>
-                  <td className="py-3.5 text-[13px] font-semibold text-navy whitespace-nowrap">{e.req}</td>
-                  <td className="py-3.5 text-[13px] font-medium text-navy whitespace-nowrap">{e.agent}</td>
-                  <td className="py-3.5 text-right whitespace-nowrap">
-                    <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-full ${
-                      e.status === 'Success' ? 'bg-sky text-blue-brand' : 'bg-red-50 text-red-600'
-                    }`}>
-                      {e.status}
-                    </span>
+              {executions.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="py-8 text-center text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                    No executions run yet.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                executions.map((e, i) => (
+                  <tr key={i} className="border-b border-line last:border-b-0">
+                    <td className="py-3.5 text-[13px] font-medium text-slate-500 whitespace-nowrap">{e.time}</td>
+                    <td className="py-3.5 text-[13px] font-semibold text-navy whitespace-nowrap">{e.req}</td>
+                    <td className="py-3.5 text-[13px] font-medium text-navy whitespace-nowrap">{e.agent}</td>
+                    <td className="py-3.5 text-right whitespace-nowrap">
+                      <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-full ${
+                        e.status === 'Success' ? 'bg-sky text-blue-brand' : 'bg-red-50 text-red-600'
+                      }`}>
+                        {e.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

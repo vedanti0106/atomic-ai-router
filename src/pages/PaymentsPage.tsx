@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 interface Transaction {
   txId: string;
@@ -14,72 +15,51 @@ interface Transaction {
   timestamp: string;
 }
 
-const mockTransactions: Transaction[] = [
-  {
-    txId: 'TX_ALG_99201A843F',
-    taskId: 'task_9f31ab',
-    agent: 'Flight AI',
-    agentWallet: 'ALGO_FLIGHT_W481...9X',
-    amount: '3.00',
-    currency: 'USDC',
-    nonce: '8f0a1c93',
-    status: 'SETTLED',
-    timestamp: '2 mins ago'
-  },
-  {
-    txId: 'TX_ALG_88192B710C',
-    taskId: 'task_8e20ba',
-    agent: 'Hotel AI',
-    agentWallet: 'ALGO_HOTEL_W102...3A',
-    amount: '8.50',
-    currency: 'USDC',
-    nonce: '7c1b2d84',
-    status: 'SETTLED',
-    timestamp: '15 mins ago'
-  },
-  {
-    txId: 'TX_ALG_77083C621D',
-    taskId: 'task_7d19c9',
-    agent: 'Weather Risk AI',
-    agentWallet: 'ALGO_WEATH_W931...7Z',
-    amount: '0.10',
-    currency: 'USDC',
-    nonce: '6a0c3e75',
-    status: 'SETTLED',
-    timestamp: '1 hour ago'
-  },
-  {
-    txId: 'TX_ALG_66974D532E',
-    taskId: 'task_6c08d8',
-    agent: 'Payment Escrow',
-    agentWallet: 'ALGO_ESCROW_W552...1M',
-    amount: '12.00',
-    currency: 'USDC',
-    nonce: '5f9d4e66',
-    status: 'REFUNDED',
-    timestamp: '3 hours ago'
-  },
-  {
-    txId: 'TX_ALG_55865E443F',
-    taskId: 'task_5b97e7',
-    agent: 'Routing Facilitator',
-    agentWallet: 'ALGO_ROUT_W771...4P',
-    amount: '0.05',
-    currency: 'USDC',
-    nonce: '4e8c5f55',
-    status: 'PENDING',
-    timestamp: 'Just now'
-  }
-];
 
 const PaymentsPage: React.FC = () => {
   const { showInfo } = useToast();
+  const { user } = useAuth();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
-  const filteredTxs = mockTransactions.filter(t => {
+  const fetchPayments = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/task/payments', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to load transaction ledger.');
+      }
+      const data = await response.json();
+      setTransactions(data.payments || []);
+      setError('');
+    } catch (err: any) {
+      console.error(err);
+      setError('Could not connect to Hono backend. Ensure the backend server is running on port 3001.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPayments();
+    const interval = setInterval(fetchPayments, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const filteredTxs = transactions.filter(t => {
     return filterStatus === 'ALL' || t.status === filterStatus;
   });
+
+  // Calculate dynamic stats
+  const routerBalance = user?.balance ? Number(user.balance).toFixed(2) : '0.00';
+  const settledTxs = transactions.filter(t => t.status === 'SETTLED');
+  const totalSettledVal = settledTxs.reduce((sum, t) => sum + Number(t.amount), 0).toFixed(2);
+  const microTransactionsCount = transactions.length;
 
   return (
     <DashboardLayout>
@@ -96,7 +76,7 @@ const PaymentsPage: React.FC = () => {
           <div className="flex items-center gap-3">
             <button 
               onClick={() => showInfo('Opening Algorand TestNet Explorer for wallet...')}
-              className="px-4 py-2.5 bg-sky text-blue-brand rounded-full text-[13px] font-bold hover:bg-blue-brand hover:text-white transition-colors flex items-center gap-1.5"
+              className="px-4 py-2.5 bg-sky text-blue-brand rounded-full text-[13px] font-bold hover:bg-blue-brand hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <span>🔗</span>
               <span>Algorand Explorer</span>
@@ -104,20 +84,26 @@ const PaymentsPage: React.FC = () => {
           </div>
         </div>
 
+        {error && (
+          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+            {error}
+          </div>
+        )}
+
         {/* Top Financial Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
             <div className="text-[13px] font-medium text-slate-500 mb-1">Router Wallet Balance</div>
             <div className="text-[26px] font-bold font-display text-navy">
-              1,450.00 <span className="text-[14px] text-blue-brand font-sans">USDC</span>
+              {routerBalance} <span className="text-[14px] text-blue-brand font-sans">USDC</span>
             </div>
             <div className="text-[12px] text-slate-400 font-medium mt-1">48.5 ALGO (Gas Reserve)</div>
           </div>
 
           <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
             <div className="text-[13px] font-medium text-slate-500 mb-1">Total Settled Volume</div>
-            <div className="text-[26px] font-bold font-display text-navy">$4,280.50</div>
-            <div className="text-[12px] text-emerald-600 font-semibold mt-1">1,840 Micro-transactions</div>
+            <div className="text-[26px] font-bold font-display text-navy">${totalSettledVal}</div>
+            <div className="text-[12px] text-emerald-600 font-semibold mt-1">{settledTxs.length} settled payments</div>
           </div>
 
           <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
@@ -128,7 +114,7 @@ const PaymentsPage: React.FC = () => {
 
           <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
             <div className="text-[13px] font-medium text-slate-500 mb-1">Replay Protection</div>
-            <div className="text-[26px] font-bold font-display text-navy">842 Nonces</div>
+            <div className="text-[26px] font-bold font-display text-navy">{microTransactionsCount} Nonces</div>
             <div className="text-[12px] text-blue-brand font-semibold mt-1">100% Unique Nonce Match</div>
           </div>
         </div>
@@ -208,44 +194,63 @@ const PaymentsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {filteredTxs.map((tx) => (
-                  <tr key={tx.txId} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="py-4 px-6 font-mono text-[13px] font-bold text-blue-brand">
-                      {tx.txId}
-                      <div className="text-[11px] font-normal text-slate-400 mt-0.5">{tx.timestamp}</div>
-                    </td>
-                    <td className="py-4 px-6 font-mono text-[13px] font-medium text-navy">
-                      {tx.taskId}
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-[13.5px] font-bold text-navy">{tx.agent}</div>
-                      <div className="font-mono text-[11px] text-slate-400 truncate max-w-[140px]">{tx.agentWallet}</div>
-                    </td>
-                    <td className="py-4 px-6 font-display font-bold text-navy text-[14px]">
-                      ${tx.amount} <span className="text-[11px] font-medium text-slate-400">{tx.currency}</span>
-                    </td>
-                    <td className="py-4 px-6 font-mono text-[12px] text-slate-500">
-                      {tx.nonce}
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide ${
-                        tx.status === 'SETTLED' ? 'bg-[#E3FBF5] text-[#0E7D69]' :
-                        tx.status === 'PENDING' ? 'bg-sky text-blue-brand animate-pulse' :
-                        'bg-amber-50 text-amber-800 border border-amber-200'
-                      }`}>
-                        {tx.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-right">
-                      <button
-                        onClick={() => setSelectedTx(tx)}
-                        className="px-3 py-1.5 border border-line rounded-[10px] text-[12px] font-semibold text-navy hover:bg-slate-100 transition-colors"
-                      >
-                        Inspect x402 Proof
-                      </button>
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="p-12 text-center">
+                      <div className="w-8 h-8 border-4 border-sky border-t-blue-brand rounded-full animate-spin mx-auto mb-3"></div>
+                      <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Loading Ledger...</span>
                     </td>
                   </tr>
-                ))}
+                ) : filteredTxs.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="p-16 text-center">
+                      <div className="text-slate-300 text-4xl mb-3">💳</div>
+                      <h4 className="text-[15px] font-bold text-navy mb-1">No payments on ledger</h4>
+                      <p className="text-[12.5px] text-slate-500 max-w-[280px] mx-auto">
+                        Funds deposited and micro-payments completed during tasks will appear here.
+                      </p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredTxs.map((tx) => (
+                    <tr key={tx.txId} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-4 px-6 font-mono text-[13px] font-bold text-blue-brand">
+                        {tx.txId}
+                        <div className="text-[11px] font-normal text-slate-400 mt-0.5">{tx.timestamp}</div>
+                      </td>
+                      <td className="py-4 px-6 font-mono text-[13px] font-medium text-navy">
+                        {tx.taskId}
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-[13.5px] font-bold text-navy">{tx.agent}</div>
+                        <div className="font-mono text-[11px] text-slate-400 truncate max-w-[140px]">{tx.agentWallet}</div>
+                      </td>
+                      <td className="py-4 px-6 font-display font-bold text-navy text-[14px]">
+                        ${tx.amount} <span className="text-[11px] font-medium text-slate-400">{tx.currency}</span>
+                      </td>
+                      <td className="py-4 px-6 font-mono text-[12px] text-slate-500">
+                        {tx.nonce}
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide ${
+                          tx.status === 'SETTLED' ? 'bg-[#E3FBF5] text-[#0E7D69]' :
+                          tx.status === 'PENDING' ? 'bg-sky text-blue-brand animate-pulse' :
+                          'bg-amber-50 text-amber-800 border border-amber-200'
+                        }`}>
+                          {tx.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <button
+                          onClick={() => setSelectedTx(tx)}
+                          className="px-3 py-1.5 border border-line rounded-[10px] text-[12px] font-semibold text-navy hover:bg-slate-100 transition-colors"
+                        >
+                          Inspect x402 Proof
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

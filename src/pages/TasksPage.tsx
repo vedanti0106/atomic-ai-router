@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
+import { useToast } from '../context/ToastContext';
 
 interface AgentCall {
   name: string;
@@ -22,92 +24,46 @@ interface TaskItem {
   executionTime: string;
 }
 
-const mockTasks: TaskItem[] = [
-  {
-    id: 'task_9f31ab',
-    goal: 'Plan a 3-day trip to Goa under ₹20,000 with flights, hotels and weather.',
-    userId: 'user_8231',
-    status: 'SUCCESS',
-    createdAt: '2 mins ago',
-    totalCost: '7.00',
-    currency: 'USDC',
-    executionTime: '4.2s',
-    agents: [
-      { name: 'Flight AI', icon: '✈', price: '3.00', status: 'COMPLETED', txId: 'ALGO_TX_8921A', latency: '620ms' },
-      { name: 'Hotel AI', icon: '🛏', price: '2.50', status: 'COMPLETED', txId: 'ALGO_TX_8921B', latency: '890ms' },
-      { name: 'Weather AI', icon: '☀', price: '0.50', status: 'COMPLETED', txId: 'ALGO_TX_8921C', latency: '210ms' },
-      { name: 'Finance AI', icon: '💳', price: '1.00', status: 'COMPLETED', txId: 'ALGO_TX_8921D', latency: '450ms' },
-    ]
-  },
-  {
-    id: 'task_88c42d',
-    goal: 'Compare prices across 5 online stores for Sony WH-1000XM5 headphones.',
-    userId: 'user_4412',
-    status: 'IN_PROGRESS',
-    createdAt: '12 seconds ago',
-    totalCost: '2.50',
-    currency: 'USDC',
-    executionTime: '1.8s',
-    agents: [
-      { name: 'Price Scraper AI', icon: '🏷', price: '1.50', status: 'COMPLETED', txId: 'ALGO_TX_9012A', latency: '540ms' },
-      { name: 'Discount Finder AI', icon: '🎟', price: '1.00', status: 'RUNNING', latency: '310ms' },
-      { name: 'Finance AI', icon: '💳', price: '0.00', status: 'RUNNING', latency: '0ms' }
-    ]
-  },
-  {
-    id: 'task_77a11e',
-    goal: 'Hospital Assistant: Symptom triage, pharmacy check, and insurance verification.',
-    userId: 'user_9901',
-    status: 'ROLLED_BACK',
-    createdAt: '15 mins ago',
-    totalCost: '0.00',
-    currency: 'USDC',
-    executionTime: '2.1s',
-    agents: [
-      { name: 'Symptom Checker AI', icon: '🩺', price: '4.00', status: 'ROLLED_BACK', txId: 'REFUND_TX_1102A', latency: '710ms' },
-      { name: 'Pharmacy Stock AI', icon: '💊', price: '2.00', status: 'ROLLED_BACK', txId: 'REFUND_TX_1102B', latency: '430ms' },
-      { name: 'Insurance Verify AI', icon: '🛡', price: '5.00', status: 'FAILED', latency: 'timeout' }
-    ]
-  },
-  {
-    id: 'task_65b99f',
-    goal: 'Insurance claim audit: Document OCR, anomaly check, policy rule engine.',
-    userId: 'user_1029',
-    status: 'SUCCESS',
-    createdAt: '1 hour ago',
-    totalCost: '12.00',
-    currency: 'USDC',
-    executionTime: '5.6s',
-    agents: [
-      { name: 'OCR Reader AI', icon: '📄', price: '5.00', status: 'COMPLETED', txId: 'ALGO_TX_7841A', latency: '1.2s' },
-      { name: 'Fraud Check AI', icon: '🔍', price: '4.00', status: 'COMPLETED', txId: 'ALGO_TX_7841B', latency: '980ms' },
-      { name: 'Policy Rules AI', icon: '📋', price: '3.00', status: 'COMPLETED', txId: 'ALGO_TX_7841C', latency: '650ms' }
-    ]
-  },
-  {
-    id: 'task_54d33c',
-    goal: 'Automate customer support email response with sentiment analysis & language translation.',
-    userId: 'user_6672',
-    status: 'SUCCESS',
-    createdAt: '3 hours ago',
-    totalCost: '3.50',
-    currency: 'USDC',
-    executionTime: '2.9s',
-    agents: [
-      { name: 'Sentiment AI', icon: '📊', price: '1.00', status: 'COMPLETED', txId: 'ALGO_TX_6512A', latency: '320ms' },
-      { name: 'Translation AI', icon: '🌐', price: '1.50', status: 'COMPLETED', txId: 'ALGO_TX_6512B', latency: '810ms' },
-      { name: 'Reply Draft AI', icon: '✍', price: '1.00', status: 'COMPLETED', txId: 'ALGO_TX_6512C', latency: '540ms' }
-    ]
-  }
-];
+
 
 const TasksPage: React.FC = () => {
-  const { showInfo, showSuccess } = useToast();
+  const { showSuccess } = useToast();
+  const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
 
-  const filteredTasks = mockTasks.filter(t => {
+  const navigate = useNavigate();
+
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/task', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to retrieve tasks.');
+      }
+      const data = await response.json();
+      setTasks(data.tasks || []);
+      setError('');
+    } catch (err: any) {
+      console.error(err);
+      setError('Could not connect to Hono backend. Ensure the backend server is running on port 3001.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+    const interval = setInterval(fetchTasks, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const filteredTasks = tasks.filter(t => {
     const matchesStatus = filterStatus === 'ALL' || t.status === filterStatus;
     const matchesSearch = t.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           t.goal.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -115,12 +71,19 @@ const TasksPage: React.FC = () => {
     return matchesStatus && matchesSearch;
   });
 
+  // Calculate Metrics from live data
+  const totalTasksCount = tasks.length;
+  const activeTasksCount = tasks.filter(t => t.status === 'IN_PROGRESS').length;
+  const successTasksCount = tasks.filter(t => t.status === 'SUCCESS').length;
+  const successRate = totalTasksCount === 0 ? '100.0%' : ((successTasksCount / totalTasksCount) * 100).toFixed(1) + '%';
+  const rolledBackCount = tasks.filter(t => t.status === 'ROLLED_BACK').length;
+
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto pb-10">
         
         {/* Header */}
-        <div className="flex flex-col gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
           <div>
             <h1 className="text-[24px] md:text-[32px] font-bold font-display text-navy leading-tight">Tasks & Workflow Tracker</h1>
             <p className="text-[14px] md:text-[15px] text-slate-500 mt-1">
@@ -128,13 +91,19 @@ const TasksPage: React.FC = () => {
             </p>
           </div>
           <button 
-            onClick={() => showInfo('Simulating new multi-agent atomic request execution...')}
-            className="self-start px-5 py-3 bg-blue-brand hover:bg-blue-dark text-white rounded-full text-[14px] font-bold transition-colors shadow-sm flex items-center gap-2"
+            onClick={() => navigate('/dashboard/new-request')}
+            className="self-start px-5 py-3 bg-blue-brand hover:bg-blue-dark text-white rounded-full text-[14px] font-bold transition-colors shadow-sm flex items-center gap-2 cursor-pointer"
           >
             <span>⚡</span>
             <span>Simulate New Task</span>
           </button>
         </div>
+
+        {error && (
+          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+            {error}
+          </div>
+        )}
 
         {/* Metrics Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
@@ -143,8 +112,8 @@ const TasksPage: React.FC = () => {
               <span className="text-[13px] font-medium text-slate-500">Total Tasks Run</span>
               <span className="w-9 h-9 rounded-full bg-sky flex items-center justify-center text-blue-brand text-lg">📋</span>
             </div>
-            <div className="text-[28px] font-bold font-display text-navy">1,482</div>
-            <div className="text-[12px] text-emerald-600 font-semibold mt-1">↑ 18% from last week</div>
+            <div className="text-[28px] font-bold font-display text-navy">{totalTasksCount}</div>
+            <div className="text-[12px] text-slate-400 font-medium mt-1">From live SQLite database</div>
           </div>
 
           <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
@@ -152,7 +121,7 @@ const TasksPage: React.FC = () => {
               <span className="text-[13px] font-medium text-slate-500">Active Executions</span>
               <span className="w-9 h-9 rounded-full bg-sky flex items-center justify-center text-blue-brand text-lg">⚙</span>
             </div>
-            <div className="text-[28px] font-bold font-display text-navy">4 Active</div>
+            <div className="text-[28px] font-bold font-display text-navy">{activeTasksCount} Active</div>
             <div className="text-[12px] text-blue-brand font-semibold mt-1">Real-time parallel routing</div>
           </div>
 
@@ -161,7 +130,7 @@ const TasksPage: React.FC = () => {
               <span className="text-[13px] font-medium text-slate-500">Atomicity Success Rate</span>
               <span className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 text-lg">🛡</span>
             </div>
-            <div className="text-[28px] font-bold font-display text-navy">99.8%</div>
+            <div className="text-[28px] font-bold font-display text-navy">{successRate}</div>
             <div className="text-[12px] text-slate-500 font-medium mt-1">Zero partial payments lost</div>
           </div>
 
@@ -170,7 +139,7 @@ const TasksPage: React.FC = () => {
               <span className="text-[13px] font-medium text-slate-500">Atomic Rollbacks</span>
               <span className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 text-lg">↺</span>
             </div>
-            <div className="text-[28px] font-bold font-display text-navy">3 Refunded</div>
+            <div className="text-[28px] font-bold font-display text-navy">{rolledBackCount} Refunded</div>
             <div className="text-[12px] text-amber-600 font-semibold mt-1">100% money returned on error</div>
           </div>
         </div>
@@ -230,59 +199,78 @@ const TasksPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {filteredTasks.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="py-4 px-6 font-mono text-[13px] font-bold text-blue-brand">
-                      {t.id}
-                      <div className="text-[11px] font-normal text-slate-400 mt-0.5">{t.createdAt}</div>
-                    </td>
-                    <td className="py-4 px-6 max-w-[340px]">
-                      <div className="text-[13.5px] font-medium text-navy line-clamp-2 leading-snug">{t.goal}</div>
-                      <div className="text-[11px] text-slate-400 mt-1">User: {t.userId} • Time: {t.executionTime}</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex flex-wrap gap-1.5">
-                        {t.agents.map((ag, idx) => (
-                          <span 
-                            key={idx}
-                            title={`${ag.name} (${ag.status})`}
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
-                              ag.status === 'COMPLETED' ? 'bg-sky text-blue-brand' :
-                              ag.status === 'RUNNING' ? 'bg-blue-100 text-blue-700 animate-pulse' :
-                              ag.status === 'ROLLED_BACK' ? 'bg-amber-100 text-amber-800' :
-                              'bg-rose-100 text-rose-700'
-                            }`}
-                          >
-                            <span>{ag.icon}</span>
-                            <span>{ag.name.replace(' AI', '')}</span>
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 font-display font-bold text-navy text-[14px]">
-                      ${t.totalCost} <span className="text-[11px] font-medium text-slate-400">{t.currency}</span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide ${
-                        t.status === 'SUCCESS' ? 'bg-[#E3FBF5] text-[#0E7D69]' :
-                        t.status === 'IN_PROGRESS' ? 'bg-sky text-blue-brand animate-pulse' :
-                        t.status === 'ROLLED_BACK' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                        'bg-rose-50 text-rose-700 border border-rose-200'
-                      }`}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                        {t.status.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-right">
-                      <button
-                        onClick={() => setSelectedTask(t)}
-                        className="px-3 py-1.5 border border-line rounded-[10px] text-[12.5px] font-semibold text-navy hover:bg-slate-100 transition-colors"
-                      >
-                        Inspect Details
-                      </button>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="p-12 text-center">
+                      <div className="w-8 h-8 border-4 border-sky border-t-blue-brand rounded-full animate-spin mx-auto mb-3"></div>
+                      <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Loading Tasks...</span>
                     </td>
                   </tr>
-                ))}
+                ) : filteredTasks.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-16 text-center">
+                      <div className="text-slate-300 text-4xl mb-3">📋</div>
+                      <h4 className="text-[15px] font-bold text-navy mb-1">No tasks matching filters</h4>
+                      <p className="text-[12.5px] text-slate-500 max-w-[280px] mx-auto">
+                        Launch a new task via the "Simulate New Task" button above to populate the ledger.
+                      </p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredTasks.map((t) => (
+                    <tr key={t.id} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-4 px-6 font-mono text-[13px] font-bold text-blue-brand">
+                        {t.id}
+                        <div className="text-[11px] font-normal text-slate-400 mt-0.5">{t.createdAt}</div>
+                      </td>
+                      <td className="py-4 px-6 max-w-[340px]">
+                        <div className="text-[13.5px] font-medium text-navy line-clamp-2 leading-snug">{t.goal}</div>
+                        <div className="text-[11px] text-slate-400 mt-1">User: {t.userId} • Time: {t.executionTime}</div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex flex-wrap gap-1.5">
+                          {t.agents.map((ag, idx) => (
+                            <span 
+                              key={idx}
+                              title={`${ag.name} (${ag.status})`}
+                              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
+                                ag.status === 'COMPLETED' ? 'bg-sky text-blue-brand' :
+                                ag.status === 'RUNNING' ? 'bg-blue-100 text-blue-700 animate-pulse' :
+                                ag.status === 'ROLLED_BACK' ? 'bg-amber-100 text-amber-800' :
+                                'bg-rose-100 text-rose-700'
+                              }`}
+                            >
+                              <span>{ag.icon}</span>
+                              <span>{ag.name.replace(' AI', '')}</span>
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 font-display font-bold text-navy text-[14px]">
+                        ${t.totalCost} <span className="text-[11px] font-medium text-slate-400">{t.currency}</span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide ${
+                          t.status === 'SUCCESS' ? 'bg-[#E3FBF5] text-[#0E7D69]' :
+                          t.status === 'IN_PROGRESS' ? 'bg-sky text-blue-brand animate-pulse' :
+                          t.status === 'ROLLED_BACK' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                          'bg-rose-50 text-rose-700 border border-rose-200'
+                        }`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                          {t.status.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <button
+                          onClick={() => setSelectedTask(t)}
+                          className="px-3 py-1.5 border border-line rounded-[10px] text-[12.5px] font-semibold text-navy hover:bg-slate-100 transition-colors"
+                        >
+                          Inspect Details
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

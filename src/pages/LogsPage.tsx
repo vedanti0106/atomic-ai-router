@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
 import { useToast } from '../context/ToastContext';
 
@@ -89,14 +89,44 @@ const LogsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
   const [isLiveStreaming, setIsLiveStreaming] = useState<boolean>(true);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
 
-  const filteredLogs = mockLogs.filter(l => {
+
+  const fetchLogs = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/task/logs', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setLogs(data.logs || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch logs:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchLogs();
+    
+    let interval: any;
+    if (isLiveStreaming) {
+      interval = setInterval(fetchLogs, 2500);
+    }
+    return () => clearInterval(interval);
+  }, [isLiveStreaming]);
+
+  const displayLogs = logs.length > 0 ? logs : mockLogs;
+
+  const filteredLogs = displayLogs.filter(l => {
     const matchesLevel = filterLevel === 'ALL' || l.level === filterLevel;
     const matchesSearch = l.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           l.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           (l.taskId && l.taskId.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesLevel && matchesSearch;
   });
+
 
   return (
     <DashboardLayout>
