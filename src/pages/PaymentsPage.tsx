@@ -1,19 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
-import { 
-  Wallet, 
-  TrendingUp, 
-  Zap, 
-  ShieldCheck, 
-  Lock, 
-  ExternalLink, 
-  X, 
-  CheckCircle2, 
-  RefreshCw,
-  FileCode
-} from 'lucide-react';
-
-type EscrowStatus = 'FUNDED' | 'RELEASED' | 'REFUNDED' | 'DISPUTED' | null;
+import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 interface Transaction {
   txId: string;
@@ -24,85 +12,54 @@ interface Transaction {
   currency: string;
   nonce: string;
   status: 'SETTLED' | 'PENDING' | 'REFUNDED' | 'CHALLENGED';
-  escrowStatus: EscrowStatus;
-  escrowTxId?: string;
   timestamp: string;
 }
 
-const mockTransactions: Transaction[] = [
-  {
-    txId: 'TX_ALG_99201A843F',
-    taskId: 'task_9f31ab',
-    agent: 'Flight AI',
-    agentWallet: 'ALGO_FLIGHT_W481...9X',
-    amount: '3.00',
-    currency: 'USDC',
-    nonce: '8f0a1c93',
-    status: 'SETTLED',
-    escrowStatus: 'RELEASED',
-    escrowTxId: 'TX_ALG_REL_9921B',
-    timestamp: '2 mins ago'
-  },
-  {
-    txId: 'TX_ALG_99201B421E',
-    taskId: 'task_9f31ab',
-    agent: 'Hotel AI',
-    agentWallet: 'ALGO_HOTEL_W912...4K',
-    amount: '2.50',
-    currency: 'USDC',
-    nonce: '3d2b9a71',
-    status: 'SETTLED',
-    escrowStatus: 'RELEASED',
-    escrowTxId: 'TX_ALG_REL_9921C',
-    timestamp: '2 mins ago'
-  },
-  {
-    txId: 'TX_ALG_77810C110A',
-    taskId: 'task_77a11e',
-    agent: 'Symptom Checker AI',
-    agentWallet: 'ALGO_HEALTH_W331...2M',
-    amount: '4.00',
-    currency: 'USDC',
-    nonce: '1a90c4f8',
-    status: 'REFUNDED',
-    escrowStatus: 'REFUNDED',
-    escrowTxId: 'REFUND_TX_1102A',
-    timestamp: '15 mins ago'
-  },
-  {
-    txId: 'TX_ALG_65192D890C',
-    taskId: 'task_65b99f',
-    agent: 'OCR Reader AI',
-    agentWallet: 'ALGO_OCR_W772...1P',
-    amount: '5.00',
-    currency: 'USDC',
-    nonce: '7c44e9b2',
-    status: 'SETTLED',
-    escrowStatus: 'RELEASED',
-    escrowTxId: 'TX_ALG_REL_7841A',
-    timestamp: '1 hour ago'
-  },
-  {
-    txId: 'TX_ALG_54109E334B',
-    taskId: 'task_88c42d',
-    agent: 'Price Scraper AI',
-    agentWallet: 'ALGO_SHOP_W109...8L',
-    amount: '1.50',
-    currency: 'USDC',
-    nonce: '9b110a34',
-    status: 'PENDING',
-    escrowStatus: 'FUNDED',
-    timestamp: 'Just now'
-  }
-];
 
 const PaymentsPage: React.FC = () => {
+  const { showInfo } = useToast();
+  const { user } = useAuth();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
-  const filteredTxs = mockTransactions.filter(t => {
+  const fetchPayments = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/task/payments', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to load transaction ledger.');
+      }
+      const data = await response.json();
+      setTransactions(data.payments || []);
+      setError('');
+    } catch (err: any) {
+      console.error(err);
+      setError('Could not connect to Hono backend. Ensure the backend server is running on port 3001.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPayments();
+    const interval = setInterval(fetchPayments, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const filteredTxs = transactions.filter(t => {
     return filterStatus === 'ALL' || t.status === filterStatus;
   });
+
+  // Calculate dynamic stats
+  const routerBalance = user?.balance ? Number(user.balance).toFixed(2) : '0.00';
+  const settledTxs = transactions.filter(t => t.status === 'SETTLED');
+  const totalSettledVal = settledTxs.reduce((sum, t) => sum + Number(t.amount), 0).toFixed(2);
+  const microTransactionsCount = transactions.length;
 
   return (
     <DashboardLayout>
@@ -118,141 +75,103 @@ const PaymentsPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => alert('Opening Algorand TestNet Explorer for wallet...')}
-              className="px-4 py-2.5 bg-blue-brand hover:bg-blue-dark text-white rounded-full text-[13px] font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+              onClick={() => showInfo('Opening Algorand TestNet Explorer for wallet...')}
+              className="px-4 py-2.5 bg-sky text-blue-brand rounded-full text-[13px] font-bold hover:bg-blue-brand hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
             >
-              <ExternalLink className="w-4 h-4" />
+              <span>🔗</span>
               <span>Algorand Explorer</span>
             </button>
           </div>
         </div>
 
+        {error && (
+          <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">
+            {error}
+          </div>
+        )}
+
         {/* Top Financial Overview */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
-          <div className="bg-white rounded-[20px] p-6 border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 hover:bg-gradient-to-br hover:from-white hover:to-blue-50/20 cursor-pointer">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[13px] font-medium text-slate-500">Router Wallet Balance</span>
-              <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 border border-blue-200 flex items-center justify-center">
-                <Wallet className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-[24px] font-bold font-display text-navy">
-              1,450.00 <span className="text-[13px] text-blue-brand font-sans">USDC</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
+            <div className="text-[13px] font-medium text-slate-500 mb-1">Router Wallet Balance</div>
+            <div className="text-[26px] font-bold font-display text-navy">
+              {routerBalance} <span className="text-[14px] text-blue-brand font-sans">USDC</span>
             </div>
             <div className="text-[12px] text-slate-400 font-medium mt-1">48.5 ALGO (Gas Reserve)</div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-6 border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-emerald-400 hover:bg-gradient-to-br hover:from-white hover:to-emerald-50/20 cursor-pointer">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[13px] font-medium text-slate-500">Total Settled Volume</span>
-              <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 border border-emerald-200 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-[24px] font-bold font-display text-navy">$4,280.50</div>
-            <div className="text-[12px] text-emerald-600 font-semibold mt-1">1,840 Micro-transactions</div>
+          <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
+            <div className="text-[13px] font-medium text-slate-500 mb-1">Total Settled Volume</div>
+            <div className="text-[26px] font-bold font-display text-navy">${totalSettledVal}</div>
+            <div className="text-[12px] text-emerald-600 font-semibold mt-1">{settledTxs.length} settled payments</div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-6 border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-amber-400 hover:bg-gradient-to-br hover:from-white hover:to-amber-50/20 cursor-pointer">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[13px] font-medium text-slate-500">Avg Settlement Time</span>
-              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 border border-amber-200 flex items-center justify-center">
-                <Zap className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-[24px] font-bold font-display text-navy">1.2 seconds</div>
+          <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
+            <div className="text-[13px] font-medium text-slate-500 mb-1">Avg Settlement Time</div>
+            <div className="text-[26px] font-bold font-display text-navy">1.2 seconds</div>
             <div className="text-[12px] text-emerald-600 font-semibold mt-1">Instant Algorand Finality</div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-6 border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-purple-400 hover:bg-gradient-to-br hover:from-white hover:to-purple-50/20 cursor-pointer">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[13px] font-medium text-slate-500">Replay Protection</span>
-              <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 border border-purple-200 flex items-center justify-center">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-[24px] font-bold font-display text-navy">842 Nonces</div>
+          <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
+            <div className="text-[13px] font-medium text-slate-500 mb-1">Replay Protection</div>
+            <div className="text-[26px] font-bold font-display text-navy">{microTransactionsCount} Nonces</div>
             <div className="text-[12px] text-blue-brand font-semibold mt-1">100% Unique Nonce Match</div>
-          </div>
-
-          <div className="bg-amber-50/90 rounded-[20px] p-6 border border-amber-200 shadow-[0_4px_24px_rgba(15,27,61,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[13px] font-bold text-amber-800">Escrow Health</span>
-              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 border border-amber-300 flex items-center justify-center">
-                <Lock className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-[24px] font-bold font-display text-amber-900">
-              2 Active
-            </div>
-            <div className="text-[12px] text-amber-700 font-semibold mt-1">
-              🔒 $11.00 USDC locked
-            </div>
           </div>
         </div>
 
-        {/* 9-Step x402 + Escrow Flow Visualizer */}
-        <div className="bg-white rounded-[24px] p-7 border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] hover:border-cyan-400 hover:shadow-cyan-500/10 transition-all duration-300 mb-8">
+        {/* 7-Step x402 Protocol Flow Visualizer */}
+        <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-[16px] font-bold text-navy">x402 + Trustless Escrow Payment Flow</h3>
-              <p className="text-[13px] text-slate-500 mt-0.5">Funds are held on-chain by a neutral smart contract — released only on verified delivery</p>
+              <h3 className="text-[16px] font-bold text-navy">The x402 Payment Flow Architecture</h3>
+              <p className="text-[13px] text-slate-500 mt-0.5">How HTTP 402 Payment Required enables zero-signup machine-to-machine commerce</p>
             </div>
-            <span className="text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1 rounded-full uppercase tracking-wide shadow-xs">
-              Escrow Enhanced
+            <span className="text-[11px] font-bold text-blue-brand bg-sky px-3 py-1 rounded-full uppercase">
+              Handbook Reference (Ch. 6)
             </span>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-2 md:gap-2.5">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 md:gap-3">
             {[
-              { step: '1', title: 'Initial Request',   desc: 'Router calls Agent GET /service',           color: 'bg-blue-brand', highlight: false },
-              { step: '2', title: '402 Challenge',      desc: 'Agent returns 402 — payTo = Escrow App',   color: 'bg-blue-brand', highlight: false },
-              { step: '3', title: 'Fund Escrow',        desc: 'fund_escrow() — USDC locked in contract',  color: 'bg-amber-500',  highlight: true  },
-              { step: '4', title: 'Client Signs',       desc: 'Router signs x402 proof with wallet key',  color: 'bg-blue-brand', highlight: false },
-              { step: '5', title: 'Retry + Header',     desc: 'Router retries with X-PAYMENT header',     color: 'bg-blue-brand', highlight: false },
-              { step: '6', title: 'Verify Signature',   desc: 'Facilitator checks nonce & signature',     color: 'bg-blue-brand', highlight: false },
-              { step: '7', title: 'Agent Delivers',     desc: 'Agent executes task & returns response',   color: 'bg-blue-brand', highlight: false },
-              { step: '8', title: 'Release Escrow',     desc: 'release_escrow() — proof hash stored',     color: 'bg-emerald-600',highlight: true  },
-              { step: '9', title: '200 OK + TxID',      desc: 'Confirmed receipt + Algorand explorer link',color: 'bg-blue-brand', highlight: false },
+              { step: '1', title: 'Initial Request', desc: 'Router calls Agent GET /service' },
+              { step: '2', title: '402 Challenge', desc: 'Agent responds 402 with amount & nonce' },
+              { step: '3', title: 'Client Signs', desc: 'Router wallet signs cryptographic proof' },
+              { step: '4', title: 'Retry Request', desc: 'Router retries with X-PAYMENT header' },
+              { step: '5', title: 'Verify Signature', desc: 'Facilitator checks nonce & signature' },
+              { step: '6', title: 'Settle On-Chain', desc: 'Tx submitted to Algorand TestNet' },
+              { step: '7', title: '200 OK + Receipt', desc: 'Agent returns data + TxID receipt' },
             ].map((s, idx) => (
-              <div key={idx} className={`rounded-[14px] p-3.5 flex flex-col justify-between border transition-all ${s.highlight ? 'bg-amber-50 border-amber-300 shadow-xs' : 'bg-slate-50/80 border-slate-200/80 hover:bg-white hover:border-blue-300'}`}>
+              <div key={idx} className="bg-slate-50 border border-line/60 rounded-[14px] p-3.5 relative flex flex-col justify-between">
                 <div>
-                  <div className={`w-6 h-6 rounded-full text-white text-[11px] font-bold flex items-center justify-center mb-2 shadow-xs ${s.color}`}>
+                  <div className="w-6 h-6 rounded-full bg-blue-brand text-white text-[11px] font-bold flex items-center justify-center mb-2">
                     {s.step}
                   </div>
-                  <div className={`text-[12px] font-bold mb-1 leading-tight ${s.highlight ? 'text-amber-800' : 'text-navy'}`}>{s.title}</div>
-                  <div className={`text-[10.5px] leading-snug ${s.highlight ? 'text-amber-700' : 'text-slate-500'}`}>{s.desc}</div>
+                  <div className="text-[12.5px] font-bold text-navy mb-1 leading-tight">{s.title}</div>
+                  <div className="text-[11px] text-slate-500 leading-snug">{s.desc}</div>
                 </div>
-                {s.highlight && <div className="mt-2 text-[10px] font-bold text-amber-700 flex items-center gap-1"><Lock className="w-3 h-3" /> On-chain</div>}
               </div>
             ))}
-          </div>
-
-          {/* Timeout / auto-refund note */}
-          <div className="mt-5 p-3.5 bg-blue-50/80 border border-blue-200 rounded-[14px] text-[12px] text-blue-900 flex items-start gap-2.5">
-            <RefreshCw className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-            <span><span className="font-bold">Auto-Refund Path:</span> If agent never delivers, <code className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-mono text-[11px]">refund_escrow()</code> fires automatically after deadline round passes — permissionless, 100% money returned on-chain.</span>
           </div>
         </div>
 
         {/* Transactions Table & Filters */}
-        <div className="bg-white rounded-[24px] border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] hover:border-blue-300 transition-all duration-300 overflow-hidden">
-          <div className="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-[24px] border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] overflow-hidden">
+          <div className="p-6 border-b border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-[16px] font-bold text-navy">Payment Transaction Ledger</h3>
               <p className="text-[12.5px] text-slate-500 mt-0.5">Real-time micro-payments settled on Algorand</p>
             </div>
 
             {/* Status Tabs */}
-            <div className="flex items-center gap-1.5 p-1.5 bg-slate-100/80 rounded-[14px] border border-slate-200/60">
+            <div className="flex items-center gap-1.5 p-1.5 bg-slate-100/80 rounded-[12px]">
               {['ALL', 'SETTLED', 'PENDING', 'REFUNDED'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setFilterStatus(tab)}
-                  className={`px-3.5 py-1.5 rounded-[10px] text-[12px] font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-[9px] text-[12px] font-bold transition-all ${
                     filterStatus === tab 
-                      ? 'bg-blue-brand text-white shadow-xs' 
-                      : 'text-slate-600 hover:bg-white hover:text-navy'
+                      ? 'bg-white text-navy shadow-sm' 
+                      : 'text-slate-500 hover:text-navy'
                   }`}
                 >
                   {tab}
@@ -264,75 +183,74 @@ const PaymentsPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[600px]">
               <thead>
-                <tr className="bg-slate-50/50 border-b border-slate-200">
+                <tr className="bg-slate-50/50 border-b border-line">
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Algorand TxID</th>
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Task ID</th>
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Recipient Agent</th>
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Amount</th>
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Nonce</th>
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Status</th>
-                  <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Escrow</th>
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider text-right">Verification</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredTxs.map((tx) => (
-                  <tr key={tx.txId} className="hover:bg-blue-50/40 hover:border-l-4 hover:border-blue-500 transition-all cursor-pointer">
-                    <td className="py-4 px-6 font-mono text-[13px] font-bold text-blue-brand">
-                      {tx.txId}
-                      <div className="text-[11px] font-normal text-slate-400 mt-0.5">{tx.timestamp}</div>
-                    </td>
-                    <td className="py-4 px-6 font-mono text-[13px] font-bold text-navy">
-                      {tx.taskId}
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="text-[13.5px] font-bold text-navy">{tx.agent}</div>
-                      <div className="font-mono text-[11px] text-slate-400 truncate max-w-[140px]">{tx.agentWallet}</div>
-                    </td>
-                    <td className="py-4 px-6 font-display font-bold text-navy text-[14px]">
-                      ${tx.amount} <span className="text-[11px] font-medium text-slate-400">{tx.currency}</span>
-                    </td>
-                    <td className="py-4 px-6 font-mono text-[12px] text-slate-500">
-                      {tx.nonce}
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide ${
-                        tx.status === 'SETTLED' ? 'bg-[#E3FBF5] text-[#0E7D69] border border-emerald-200' :
-                        tx.status === 'PENDING' ? 'bg-amber-400 text-amber-950 border border-amber-300 shadow-xs animate-pulse' :
-                        'bg-amber-50 text-amber-800 border border-amber-200'
-                      }`}>
-                        {tx.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      {tx.escrowStatus ? (
-                        <div className="flex flex-col gap-0.5">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold w-fit ${
-                            tx.escrowStatus === 'RELEASED' ? 'bg-[#E3FBF5] text-[#0E7D69] border border-emerald-200' :
-                            tx.escrowStatus === 'REFUNDED' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                            tx.escrowStatus === 'FUNDED'   ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                            'bg-rose-50 text-rose-700 border border-rose-200'
-                          }`}>
-                            {tx.escrowStatus === 'RELEASED' ? '✅' : tx.escrowStatus === 'REFUNDED' ? '↩' : tx.escrowStatus === 'FUNDED' ? '🔒' : '⚠'} {tx.escrowStatus}
-                          </span>
-                          {tx.escrowTxId && (
-                            <span className="font-mono text-[10px] text-slate-400 truncate max-w-[120px]">{tx.escrowTxId}</span>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-[11px] text-slate-400">—</span>
-                      )}
-                    </td>
-                    <td className="py-4 px-6 text-right">
-                      <button
-                        onClick={() => setSelectedTx(tx)}
-                        className="px-3 py-1.5 border border-slate-200 rounded-[10px] text-[12.5px] font-bold text-navy hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all cursor-pointer shadow-xs"
-                      >
-                        Inspect Proof
-                      </button>
+              <tbody className="divide-y divide-line">
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="p-12 text-center">
+                      <div className="w-8 h-8 border-4 border-sky border-t-blue-brand rounded-full animate-spin mx-auto mb-3"></div>
+                      <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Loading Ledger...</span>
                     </td>
                   </tr>
-                ))}
+                ) : filteredTxs.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="p-16 text-center">
+                      <div className="text-slate-300 text-4xl mb-3">💳</div>
+                      <h4 className="text-[15px] font-bold text-navy mb-1">No payments on ledger</h4>
+                      <p className="text-[12.5px] text-slate-500 max-w-[280px] mx-auto">
+                        Funds deposited and micro-payments completed during tasks will appear here.
+                      </p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredTxs.map((tx) => (
+                    <tr key={tx.txId} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-4 px-6 font-mono text-[13px] font-bold text-blue-brand">
+                        {tx.txId}
+                        <div className="text-[11px] font-normal text-slate-400 mt-0.5">{tx.timestamp}</div>
+                      </td>
+                      <td className="py-4 px-6 font-mono text-[13px] font-medium text-navy">
+                        {tx.taskId}
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="text-[13.5px] font-bold text-navy">{tx.agent}</div>
+                        <div className="font-mono text-[11px] text-slate-400 truncate max-w-[140px]">{tx.agentWallet}</div>
+                      </td>
+                      <td className="py-4 px-6 font-display font-bold text-navy text-[14px]">
+                        ${tx.amount} <span className="text-[11px] font-medium text-slate-400">{tx.currency}</span>
+                      </td>
+                      <td className="py-4 px-6 font-mono text-[12px] text-slate-500">
+                        {tx.nonce}
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide ${
+                          tx.status === 'SETTLED' ? 'bg-[#E3FBF5] text-[#0E7D69]' :
+                          tx.status === 'PENDING' ? 'bg-sky text-blue-brand animate-pulse' :
+                          'bg-amber-50 text-amber-800 border border-amber-200'
+                        }`}>
+                          {tx.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <button
+                          onClick={() => setSelectedTx(tx)}
+                          className="px-3 py-1.5 border border-line rounded-[10px] text-[12px] font-semibold text-navy hover:bg-slate-100 transition-colors"
+                        >
+                          Inspect x402 Proof
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -341,39 +259,30 @@ const PaymentsPage: React.FC = () => {
         {/* Modal: x402 Proof Inspector */}
         {selectedTx && (
           <div className="fixed inset-0 bg-navy/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-4">
-            <div className="bg-white rounded-t-[24px] sm:rounded-[24px] max-w-lg w-full p-5 md:p-7 shadow-2xl border border-slate-200/90 max-h-[90vh] overflow-y-auto animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <div className="bg-white rounded-t-[24px] sm:rounded-[24px] max-w-lg w-full p-5 md:p-7 shadow-2xl border border-line max-h-[90vh] overflow-y-auto">
               
-              <div className="flex justify-between items-start mb-5 pb-3 border-b border-slate-200">
+              <div className="flex justify-between items-start mb-5 pb-3 border-b border-line">
                 <div>
-                  <h3 className="text-[17px] font-bold text-navy flex items-center gap-2">
-                    <FileCode className="w-4 h-4 text-blue-brand" />
-                    <span>x402 Cryptographic Proof</span>
-                  </h3>
+                  <h3 className="text-[17px] font-bold text-navy">x402 Cryptographic Proof</h3>
                   <p className="text-[12px] text-slate-500">HTTP 402 Challenge & Signature Payload</p>
                 </div>
                 <button 
                   onClick={() => setSelectedTx(null)}
-                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-navy flex items-center justify-center font-bold cursor-pointer transition-colors"
+                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold"
                 >
-                  <X className="w-4 h-4" />
+                  ✕
                 </button>
               </div>
 
-              <div className="bg-slate-900 text-slate-100 rounded-[14px] p-4 font-mono text-[12px] overflow-x-auto mb-5 leading-relaxed shadow-xs">
+              <div className="bg-slate-900 text-slate-100 rounded-[14px] p-4 font-mono text-[12px] overflow-x-auto mb-5 leading-relaxed">
 {`{
   "status": 402,
   "statusText": "Payment Required",
   "challenge": {
     "amount": "${selectedTx.amount}",
     "currency": "${selectedTx.currency}",
-    "payTo": "ESCROW_APP_ADDR_741209831",
+    "payTo": "${selectedTx.agentWallet}",
     "nonce": "${selectedTx.nonce}"
-  },
-  "escrow": {
-    "appId": 741209831,
-    "boxKey": "${selectedTx.taskId}",
-    "status": "${selectedTx.escrowStatus ?? 'N/A'}",
-    "deadlineRounds": 300
   },
   "signature": "sig_algorand_ed25519_${selectedTx.nonce}_ok",
   "txId": "${selectedTx.txId}",
@@ -381,15 +290,14 @@ const PaymentsPage: React.FC = () => {
 }`}
               </div>
 
-              <div className="p-3.5 bg-blue-50/80 rounded-[14px] border border-blue-200 text-[12.5px] text-navy mb-5 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span><span className="font-bold">Verification:</span> Cryptographically verified by Facilitator service before agent executed requested AI task.</span>
+              <div className="p-3 bg-sky/50 rounded-[12px] border border-blue-brand/20 text-[12.5px] text-navy mb-5">
+                <span className="font-bold">Verification:</span> Cryptographically verified by Facilitator service before agent executed requested AI task.
               </div>
 
               <div className="flex justify-end gap-2">
                 <button 
                   onClick={() => setSelectedTx(null)}
-                  className="px-5 py-2.5 bg-slate-100 text-slate-700 text-[13px] font-bold rounded-full hover:bg-slate-200 transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-slate-100 text-slate-700 text-[13px] font-bold rounded-full hover:bg-slate-200"
                 >
                   Close
                 </button>
@@ -405,4 +313,3 @@ const PaymentsPage: React.FC = () => {
 };
 
 export default PaymentsPage;
-

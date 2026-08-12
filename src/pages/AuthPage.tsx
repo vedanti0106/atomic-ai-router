@@ -18,7 +18,6 @@ import {
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import heroFriends from '../assets/hero-friends.png';
-import { TravelLogoIcon } from '../components/TravelLogo';
 
 const AuthPage: React.FC = () => {
   const location = useLocation();
@@ -29,14 +28,6 @@ const AuthPage: React.FC = () => {
   // Determine initial mode from path (/signup or /signin)
   const isSignInInitial = location.pathname === '/signin';
   const [mode, setMode] = useState<'signup' | 'signin'>(isSignInInitial ? 'signin' : 'signup');
-
-  useEffect(() => {
-    if (location.pathname === '/signin') {
-      setMode('signin');
-    } else if (location.pathname === '/signup') {
-      setMode('signup');
-    }
-  }, [location.pathname]);
 
   // Form states
   const [fullName, setFullName] = useState('');
@@ -159,17 +150,17 @@ const AuthPage: React.FC = () => {
         
         {/* Topmost-Left Header / Logo */}
         <div className="absolute top-5 left-5 sm:top-6 sm:left-8 lg:top-7 lg:left-10 z-30 flex items-center gap-3.5">
-          <Link to="/" className="flex items-center gap-3 group">
-            <TravelLogoIcon className="w-11 h-11 transition-transform group-hover:scale-105" size={44} />
-            <div>
-              <span className="text-xl font-bold text-[#0F1B3D] leading-tight block tracking-tight">
-                Wanderly
-              </span>
-              <span className="text-xs text-slate-500 font-medium">
-                Travel with us
-              </span>
-            </div>
+          <Link to="/" className="w-12 h-12 rounded-full bg-[#0F1B3D] flex items-center justify-center flex-shrink-0 shadow-lg hover:opacity-95 transition-opacity">
+            <Send className="w-5 h-5 text-white transform -rotate-12" />
           </Link>
+          <div>
+            <Link to="/" className="text-xl font-bold text-[#0F1B3D] leading-tight block tracking-tight">
+              AI Router
+            </Link>
+            <span className="text-xs text-slate-500 font-medium">
+              Atomic Multi-Agent Platform
+            </span>
+          </div>
         </div>
 
         {/* Main Grid: Left Column (Text & Features) + Right Column (Enlarged Arch Portal) */}
