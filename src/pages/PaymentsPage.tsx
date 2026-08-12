@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
+import { 
+  Wallet, 
+  TrendingUp, 
+  Zap, 
+  ShieldCheck, 
+  Lock, 
+  ExternalLink, 
+  X, 
+  CheckCircle2, 
+  RefreshCw,
+  FileCode
+} from 'lucide-react';
 
 type EscrowStatus = 'FUNDED' | 'RELEASED' | 'REFUNDED' | 'DISPUTED' | null;
 
@@ -107,9 +119,9 @@ const PaymentsPage: React.FC = () => {
           <div className="flex items-center gap-3">
             <button 
               onClick={() => alert('Opening Algorand TestNet Explorer for wallet...')}
-              className="px-4 py-2.5 bg-sky text-blue-brand rounded-full text-[13px] font-bold hover:bg-blue-brand hover:text-white transition-colors flex items-center gap-1.5"
+              className="px-4 py-2.5 bg-blue-brand hover:bg-blue-dark text-white rounded-full text-[13px] font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
             >
-              <span>🔗</span>
+              <ExternalLink className="w-4 h-4" />
               <span>Algorand Explorer</span>
             </button>
           </div>
@@ -117,58 +129,76 @@ const PaymentsPage: React.FC = () => {
 
         {/* Top Financial Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
-          <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
-            <div className="text-[13px] font-medium text-slate-500 mb-1">Router Wallet Balance</div>
-            <div className="text-[26px] font-bold font-display text-navy">
-              1,450.00 <span className="text-[14px] text-blue-brand font-sans">USDC</span>
+          <div className="bg-white rounded-[20px] p-6 border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 hover:bg-gradient-to-br hover:from-white hover:to-blue-50/20 cursor-pointer">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[13px] font-medium text-slate-500">Router Wallet Balance</span>
+              <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 border border-blue-200 flex items-center justify-center">
+                <Wallet className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-[24px] font-bold font-display text-navy">
+              1,450.00 <span className="text-[13px] text-blue-brand font-sans">USDC</span>
             </div>
             <div className="text-[12px] text-slate-400 font-medium mt-1">48.5 ALGO (Gas Reserve)</div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
-            <div className="text-[13px] font-medium text-slate-500 mb-1">Total Settled Volume</div>
-            <div className="text-[26px] font-bold font-display text-navy">$4,280.50</div>
+          <div className="bg-white rounded-[20px] p-6 border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-emerald-400 hover:bg-gradient-to-br hover:from-white hover:to-emerald-50/20 cursor-pointer">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[13px] font-medium text-slate-500">Total Settled Volume</span>
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 border border-emerald-200 flex items-center justify-center">
+                <TrendingUp className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-[24px] font-bold font-display text-navy">$4,280.50</div>
             <div className="text-[12px] text-emerald-600 font-semibold mt-1">1,840 Micro-transactions</div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
-            <div className="text-[13px] font-medium text-slate-500 mb-1">Avg Settlement Time</div>
-            <div className="text-[26px] font-bold font-display text-navy">1.2 seconds</div>
+          <div className="bg-white rounded-[20px] p-6 border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-amber-400 hover:bg-gradient-to-br hover:from-white hover:to-amber-50/20 cursor-pointer">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[13px] font-medium text-slate-500">Avg Settlement Time</span>
+              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 border border-amber-200 flex items-center justify-center">
+                <Zap className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-[24px] font-bold font-display text-navy">1.2 seconds</div>
             <div className="text-[12px] text-emerald-600 font-semibold mt-1">Instant Algorand Finality</div>
           </div>
 
-          <div className="bg-white rounded-[20px] p-6 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
-            <div className="text-[13px] font-medium text-slate-500 mb-1">Replay Protection</div>
-            <div className="text-[26px] font-bold font-display text-navy">842 Nonces</div>
+          <div className="bg-white rounded-[20px] p-6 border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-purple-400 hover:bg-gradient-to-br hover:from-white hover:to-purple-50/20 cursor-pointer">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[13px] font-medium text-slate-500">Replay Protection</span>
+              <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 border border-purple-200 flex items-center justify-center">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-[24px] font-bold font-display text-navy">842 Nonces</div>
             <div className="text-[12px] text-blue-brand font-semibold mt-1">100% Unique Nonce Match</div>
           </div>
 
-          {/* NEW: Escrow Health card */}
-          <div className="bg-amber-50 rounded-[20px] p-6 border border-amber-200 shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-[13px] font-medium text-amber-700">Escrow Health</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+          <div className="bg-amber-50/90 rounded-[20px] p-6 border border-amber-200 shadow-[0_4px_24px_rgba(15,27,61,0.03)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[13px] font-bold text-amber-800">Escrow Health</span>
+              <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 border border-amber-300 flex items-center justify-center">
+                <Lock className="w-4 h-4" />
+              </div>
             </div>
-            <div className="text-[26px] font-bold font-display text-amber-800">
+            <div className="text-[24px] font-bold font-display text-amber-900">
               2 Active
             </div>
-            <div className="text-[11px] text-amber-600 font-semibold mt-1">
+            <div className="text-[12px] text-amber-700 font-semibold mt-1">
               🔒 $11.00 USDC locked
-            </div>
-            <div className="text-[11px] text-amber-600 mt-0.5">
-              App ID 741,209,831
             </div>
           </div>
         </div>
 
         {/* 9-Step x402 + Escrow Flow Visualizer */}
-        <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] mb-8">
+        <div className="bg-white rounded-[24px] p-7 border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] hover:border-cyan-400 hover:shadow-cyan-500/10 transition-all duration-300 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-[16px] font-bold text-navy">x402 + Trustless Escrow Payment Flow</h3>
               <p className="text-[13px] text-slate-500 mt-0.5">Funds are held on-chain by a neutral smart contract — released only on verified delivery</p>
             </div>
-            <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full uppercase">
+            <span className="text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1 rounded-full uppercase tracking-wide shadow-xs">
               Escrow Enhanced
             </span>
           </div>
@@ -185,44 +215,44 @@ const PaymentsPage: React.FC = () => {
               { step: '8', title: 'Release Escrow',     desc: 'release_escrow() — proof hash stored',     color: 'bg-emerald-600',highlight: true  },
               { step: '9', title: '200 OK + TxID',      desc: 'Confirmed receipt + Algorand explorer link',color: 'bg-blue-brand', highlight: false },
             ].map((s, idx) => (
-              <div key={idx} className={`rounded-[14px] p-3.5 flex flex-col justify-between border ${s.highlight ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-line/60'}`}>
+              <div key={idx} className={`rounded-[14px] p-3.5 flex flex-col justify-between border transition-all ${s.highlight ? 'bg-amber-50 border-amber-300 shadow-xs' : 'bg-slate-50/80 border-slate-200/80 hover:bg-white hover:border-blue-300'}`}>
                 <div>
-                  <div className={`w-6 h-6 rounded-full text-white text-[11px] font-bold flex items-center justify-center mb-2 ${s.color}`}>
+                  <div className={`w-6 h-6 rounded-full text-white text-[11px] font-bold flex items-center justify-center mb-2 shadow-xs ${s.color}`}>
                     {s.step}
                   </div>
                   <div className={`text-[12px] font-bold mb-1 leading-tight ${s.highlight ? 'text-amber-800' : 'text-navy'}`}>{s.title}</div>
-                  <div className={`text-[10.5px] leading-snug ${s.highlight ? 'text-amber-600' : 'text-slate-500'}`}>{s.desc}</div>
+                  <div className={`text-[10.5px] leading-snug ${s.highlight ? 'text-amber-700' : 'text-slate-500'}`}>{s.desc}</div>
                 </div>
-                {s.highlight && <div className="mt-2 text-[10px] font-bold text-amber-600">🔒 On-chain</div>}
+                {s.highlight && <div className="mt-2 text-[10px] font-bold text-amber-700 flex items-center gap-1"><Lock className="w-3 h-3" /> On-chain</div>}
               </div>
             ))}
           </div>
 
           {/* Timeout / auto-refund note */}
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-[12px] text-[12px] text-blue-800 flex items-start gap-2">
-            <span className="text-lg leading-none">↩</span>
-            <span><span className="font-bold">Auto-Refund Path:</span> If agent never delivers, <code className="bg-blue-100 px-1 rounded">refund_escrow()</code> fires automatically after the deadline round passes — permissionless, no human intervention required. Payer gets 100% back on-chain.</span>
+          <div className="mt-5 p-3.5 bg-blue-50/80 border border-blue-200 rounded-[14px] text-[12px] text-blue-900 flex items-start gap-2.5">
+            <RefreshCw className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+            <span><span className="font-bold">Auto-Refund Path:</span> If agent never delivers, <code className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-mono text-[11px]">refund_escrow()</code> fires automatically after deadline round passes — permissionless, 100% money returned on-chain.</span>
           </div>
         </div>
 
         {/* Transactions Table & Filters */}
-        <div className="bg-white rounded-[24px] border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] overflow-hidden">
-          <div className="p-6 border-b border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-[24px] border border-slate-200/90 shadow-[0_4px_24px_rgba(15,27,61,0.03)] hover:border-blue-300 transition-all duration-300 overflow-hidden">
+          <div className="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-[16px] font-bold text-navy">Payment Transaction Ledger</h3>
               <p className="text-[12.5px] text-slate-500 mt-0.5">Real-time micro-payments settled on Algorand</p>
             </div>
 
             {/* Status Tabs */}
-            <div className="flex items-center gap-1.5 p-1.5 bg-slate-100/80 rounded-[12px]">
+            <div className="flex items-center gap-1.5 p-1.5 bg-slate-100/80 rounded-[14px] border border-slate-200/60">
               {['ALL', 'SETTLED', 'PENDING', 'REFUNDED'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setFilterStatus(tab)}
-                  className={`px-3 py-1.5 rounded-[9px] text-[12px] font-bold transition-all ${
+                  className={`px-3.5 py-1.5 rounded-[10px] text-[12px] font-bold transition-all cursor-pointer ${
                     filterStatus === tab 
-                      ? 'bg-white text-navy shadow-sm' 
-                      : 'text-slate-500 hover:text-navy'
+                      ? 'bg-blue-brand text-white shadow-xs' 
+                      : 'text-slate-600 hover:bg-white hover:text-navy'
                   }`}
                 >
                   {tab}
@@ -234,7 +264,7 @@ const PaymentsPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[600px]">
               <thead>
-                <tr className="bg-slate-50/50 border-b border-line">
+                <tr className="bg-slate-50/50 border-b border-slate-200">
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Algorand TxID</th>
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Task ID</th>
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider">Recipient Agent</th>
@@ -245,14 +275,14 @@ const PaymentsPage: React.FC = () => {
                   <th className="py-3.5 px-6 text-[12px] font-semibold text-slate-400 uppercase tracking-wider text-right">Verification</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody className="divide-y divide-slate-100">
                 {filteredTxs.map((tx) => (
-                  <tr key={tx.txId} className="hover:bg-slate-50/60 transition-colors">
+                  <tr key={tx.txId} className="hover:bg-blue-50/40 hover:border-l-4 hover:border-blue-500 transition-all cursor-pointer">
                     <td className="py-4 px-6 font-mono text-[13px] font-bold text-blue-brand">
                       {tx.txId}
                       <div className="text-[11px] font-normal text-slate-400 mt-0.5">{tx.timestamp}</div>
                     </td>
-                    <td className="py-4 px-6 font-mono text-[13px] font-medium text-navy">
+                    <td className="py-4 px-6 font-mono text-[13px] font-bold text-navy">
                       {tx.taskId}
                     </td>
                     <td className="py-4 px-6">
@@ -267,8 +297,8 @@ const PaymentsPage: React.FC = () => {
                     </td>
                     <td className="py-4 px-6">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide ${
-                        tx.status === 'SETTLED' ? 'bg-[#E3FBF5] text-[#0E7D69]' :
-                        tx.status === 'PENDING' ? 'bg-sky text-blue-brand animate-pulse' :
+                        tx.status === 'SETTLED' ? 'bg-[#E3FBF5] text-[#0E7D69] border border-emerald-200' :
+                        tx.status === 'PENDING' ? 'bg-amber-400 text-amber-950 border border-amber-300 shadow-xs animate-pulse' :
                         'bg-amber-50 text-amber-800 border border-amber-200'
                       }`}>
                         {tx.status}
@@ -278,7 +308,7 @@ const PaymentsPage: React.FC = () => {
                       {tx.escrowStatus ? (
                         <div className="flex flex-col gap-0.5">
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold w-fit ${
-                            tx.escrowStatus === 'RELEASED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                            tx.escrowStatus === 'RELEASED' ? 'bg-[#E3FBF5] text-[#0E7D69] border border-emerald-200' :
                             tx.escrowStatus === 'REFUNDED' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
                             tx.escrowStatus === 'FUNDED'   ? 'bg-amber-50 text-amber-700 border border-amber-200' :
                             'bg-rose-50 text-rose-700 border border-rose-200'
@@ -296,9 +326,9 @@ const PaymentsPage: React.FC = () => {
                     <td className="py-4 px-6 text-right">
                       <button
                         onClick={() => setSelectedTx(tx)}
-                        className="px-3 py-1.5 border border-line rounded-[10px] text-[12px] font-semibold text-navy hover:bg-slate-100 transition-colors"
+                        className="px-3 py-1.5 border border-slate-200 rounded-[10px] text-[12.5px] font-bold text-navy hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all cursor-pointer shadow-xs"
                       >
-                        Inspect x402 Proof
+                        Inspect Proof
                       </button>
                     </td>
                   </tr>
@@ -311,22 +341,25 @@ const PaymentsPage: React.FC = () => {
         {/* Modal: x402 Proof Inspector */}
         {selectedTx && (
           <div className="fixed inset-0 bg-navy/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-4">
-            <div className="bg-white rounded-t-[24px] sm:rounded-[24px] max-w-lg w-full p-5 md:p-7 shadow-2xl border border-line max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-t-[24px] sm:rounded-[24px] max-w-lg w-full p-5 md:p-7 shadow-2xl border border-slate-200/90 max-h-[90vh] overflow-y-auto animate-in fade-in slide-in-from-bottom-2 duration-200">
               
-              <div className="flex justify-between items-start mb-5 pb-3 border-b border-line">
+              <div className="flex justify-between items-start mb-5 pb-3 border-b border-slate-200">
                 <div>
-                  <h3 className="text-[17px] font-bold text-navy">x402 Cryptographic Proof</h3>
+                  <h3 className="text-[17px] font-bold text-navy flex items-center gap-2">
+                    <FileCode className="w-4 h-4 text-blue-brand" />
+                    <span>x402 Cryptographic Proof</span>
+                  </h3>
                   <p className="text-[12px] text-slate-500">HTTP 402 Challenge & Signature Payload</p>
                 </div>
                 <button 
                   onClick={() => setSelectedTx(null)}
-                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center font-bold"
+                  className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-navy flex items-center justify-center font-bold cursor-pointer transition-colors"
                 >
-                  ✕
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="bg-slate-900 text-slate-100 rounded-[14px] p-4 font-mono text-[12px] overflow-x-auto mb-5 leading-relaxed">
+              <div className="bg-slate-900 text-slate-100 rounded-[14px] p-4 font-mono text-[12px] overflow-x-auto mb-5 leading-relaxed shadow-xs">
 {`{
   "status": 402,
   "statusText": "Payment Required",
@@ -348,14 +381,15 @@ const PaymentsPage: React.FC = () => {
 }`}
               </div>
 
-              <div className="p-3 bg-sky/50 rounded-[12px] border border-blue-brand/20 text-[12.5px] text-navy mb-5">
-                <span className="font-bold">Verification:</span> Cryptographically verified by Facilitator service before agent executed requested AI task.
+              <div className="p-3.5 bg-blue-50/80 rounded-[14px] border border-blue-200 text-[12.5px] text-navy mb-5 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span><span className="font-bold">Verification:</span> Cryptographically verified by Facilitator service before agent executed requested AI task.</span>
               </div>
 
               <div className="flex justify-end gap-2">
                 <button 
                   onClick={() => setSelectedTx(null)}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 text-[13px] font-bold rounded-full hover:bg-slate-200"
+                  className="px-5 py-2.5 bg-slate-100 text-slate-700 text-[13px] font-bold rounded-full hover:bg-slate-200 transition-colors cursor-pointer"
                 >
                   Close
                 </button>
@@ -371,3 +405,4 @@ const PaymentsPage: React.FC = () => {
 };
 
 export default PaymentsPage;
+
