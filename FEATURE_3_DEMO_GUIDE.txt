@@ -1,0 +1,110 @@
+﻿# 🚑 Feature 3 Emergency/Disaster-Response Router - Demo Guide
+
+## Quick Access
+
+### 1. View Emergency Page
+URL: http://localhost:5173/dashboard/emergency
+
+### 2. See Medical Agents
+URL: http://localhost:5173/dashboard/agents
+(Scroll down to find Hospital Bed AI 🏥 and Blood Bank AI 💉)
+
+### 3. Switch Between Domains
+From: http://localhost:5173/dashboard/new-request
+- Click ✈️ Travel tab for travel domain
+- Click 🚑 Emergency tab for emergency domain
+
+## Demo Scenario (One-Click Demo)
+
+### Pre-filled for Judges
+**Emergency Type:** Both Resources (ICU Beds + Blood Supply)
+**Location:** Pune City Center
+**Blood Type:** O- (O-negative)
+
+### Demo Flow
+1. Go to Emergency page (/dashboard/emergency)
+2. All fields pre-filled with demo scenario
+3. Click "🚨 Dispatch Emergency Response" button
+4. See simulated results:
+   - 5 hospitals with ICU bed availability
+   - 3 blood banks with O- blood in stock
+   - Estimated arrival times
+
+## What Judges Should Notice
+
+### Same Infrastructure Panels (Right Side of Page)
+✅ Router - Coordinates medical agents
+✅ Escrow System - Handles 402 payments
+✅ Reputation Registry - Tracks agent performance
+✅ Smart Contracts - Algorand blockchain
+✅ Payment Flow - Atomic transactions
+
+**Key Message:** "Zero new payment/blockchain code needed"
+
+### Domain Comparison
+Left: Travel Domain (✈️ Flight AI, 🛏 Hotel AI, ☀️ Weather AI, 🗺 Maps AI)
+Right: Emergency Domain (🏥 Hospital AI, 💉 Blood Bank AI)
+
+**Key Insight:** Same router infrastructure, different agent types
+
+## Technical Verification
+
+### Check Backend Endpoints
+```bash
+# Hospital beds
+curl "http://localhost:3001/api/medical/hospital-beds?location=Pune"
+
+# Blood supply
+curl "http://localhost:3001/api/medical/blood-supply?location=Pune&bloodType=O-"
+```
+
+### Verify Medical Agents
+- Navigate to /dashboard/agents
+- Should see 25 total agents (23 travel + 2 medical)
+- Medical agents show Emergency and Medical tags
+
+### Check Navigation
+- Sidebar should show "Emergency Response" link (🚑)
+- Can click and navigate to emergency page
+- NewRequestPage should have domain switcher
+
+## Files to Show Judges
+
+### Frontend
+- src/pages/EmergencyPage.tsx (650 lines, full component)
+- src/components/dashboard/Sidebar.tsx (updated with emergency link)
+- src/pages/AgentsPage.tsx (updated with medical agents)
+
+### Backend
+- server/src/lib/medicalData.ts (mock hospital/blood bank data)
+- server/src/lib/emergencyParser.ts (NLP parser)
+- server/src/lib/medicalServices.ts (service layer)
+- server/src/index.ts (new API endpoints)
+
+## Key Points to Emphasize
+
+1. **Domain-Agnostic Infrastructure**
+   - Same router coordinates both travel and medical agents
+   - Same escrow handles payments
+   - Same reputation tracks performance
+
+2. **Zero New Blockchain Code**
+   - No new smart contracts
+   - No new payment logic
+   - No new reputation logic
+
+3. **Platform vs App**
+   - "Travel is just the first domain we plugged in"
+   - "Could add: Finance, Logistics, Healthcare, Government services"
+   - "Same infrastructure, different agents"
+
+4. **Scalability Proven**
+   - Add domain: Create new agent types
+   - Add agents: Register in database
+   - Keep infrastructure: Reuse everything
+
+## Expected Judge Reaction
+
+✨ "They didn't build a travel app with payments bolted on."
+✨ "This is actually a platform for autonomous agent coordination."
+✨ "This could be a company."

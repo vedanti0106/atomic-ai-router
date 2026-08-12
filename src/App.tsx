@@ -12,6 +12,7 @@ import CTA from './components/CTA';
 import Footer from './components/Footer';
 import DashboardPage from './pages/DashboardPage';
 import NewRequestPage from './pages/NewRequestPage';
+import EmergencyPage from './pages/EmergencyPage';
 import AgentsPage from './pages/AgentsPage';
 import TasksPage from './pages/TasksPage';
 import PaymentsPage from './pages/PaymentsPage';
@@ -22,14 +23,12 @@ import AuthPage from './pages/AuthPage';
 import X402DemoPage from './pages/X402DemoPage';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-
+import EscrowPage from './pages/EscrowPage';
 
 const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white relative flex flex-col justify-between overflow-x-hidden">
-      {/* Decorative top-right curved backdrop */}
       <div className="absolute top-0 right-0 w-[55%] h-[85%] bg-gradient-to-bl from-[#EBF2FF] to-transparent rounded-bl-[10rem] pointer-events-none z-0"></div>
-
       <div className="z-10 flex flex-col flex-1">
         <Navbar />
         <Hero />
@@ -57,9 +56,11 @@ function App() {
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
             <Route path="/dashboard/new-request" element={<ProtectedRoute><NewRequestPage /></ProtectedRoute>} />
+            <Route path="/dashboard/emergency" element={<ProtectedRoute><EmergencyPage /></ProtectedRoute>} />
             <Route path="/dashboard/agents" element={<ProtectedRoute><AgentsPage /></ProtectedRoute>} />
             <Route path="/dashboard/tasks" element={<ProtectedRoute><TasksPage /></ProtectedRoute>} />
             <Route path="/dashboard/payments" element={<ProtectedRoute><PaymentsPage /></ProtectedRoute>} />
+            <Route path="/dashboard/escrow" element={<ProtectedRoute><EscrowPage /></ProtectedRoute>} />
             <Route path="/dashboard/logs" element={<ProtectedRoute><LogsPage /></ProtectedRoute>} />
             <Route path="/dashboard/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/dashboard/database" element={<ProtectedRoute><DatabaseInspectorPage /></ProtectedRoute>} />
