@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { TravelLogoIcon } from '../TravelLogo';
 
 const navItems = [
   { label: 'Dashboard', icon: '🏠', path: '/dashboard' },
@@ -41,14 +42,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {/* Brand */}
         <div className="flex items-center justify-between px-2 mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-navy flex items-center justify-center flex-shrink-0">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4">
-                <path d="M21 3L2 10.5L10.5 13.5L13.5 22L21 3Z" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
-              </svg>
-            </div>
+            <TravelLogoIcon className="w-10 h-10" size={40} />
             <div>
-              <div className="text-[17px] font-bold text-ink leading-tight">AI Router</div>
-              <div className="text-[11px] text-slate-500 tracking-wide">Orchestration</div>
+              <div className="text-[18px] font-bold text-navy leading-tight tracking-tight">Wanderly</div>
+              <div className="text-[11px] text-slate-500 font-medium tracking-wide">Travel with us</div>
             </div>
           </div>
           {/* Close button - mobile only */}
@@ -72,10 +69,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 key={item.label}
                 to={item.path}
                 onClick={onClose}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] font-medium text-[14px] transition-colors ${
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] font-medium text-[14px] transition-all duration-200 ${
                   isActive
-                    ? 'bg-sky text-blue-brand'
-                    : 'text-slate-600 hover:text-ink hover:bg-slate-50'
+                    ? 'bg-sky text-blue-brand font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-blue-brand hover:bg-blue-50/80 hover:translate-x-1.5 hover:shadow-xs'
                 }`}
               >
                 <span className="text-[16px]">{item.icon}</span>

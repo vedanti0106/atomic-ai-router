@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { TravelLogoIcon } from './TravelLogo';
 
 const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -8,17 +9,13 @@ const Navbar: React.FC = () => {
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-line">
       <nav className="max-w-[1560px] mx-auto px-4 md:px-14 flex items-center justify-between h-[72px] md:h-[88px]">
         {/* Brand */}
-        <div className="flex items-center gap-3">
-          <div className="w-[40px] h-[40px] rounded-full bg-navy flex items-center justify-center flex-shrink-0">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
-              <path d="M21 3L2 10.5L10.5 13.5L13.5 22L21 3Z" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
-            </svg>
-          </div>
+        <Link to="/" className="flex items-center gap-3">
+          <TravelLogoIcon className="w-10 h-10" size={40} />
           <div>
-            <div className="text-[17px] md:text-[19px] font-bold text-ink leading-tight">AI Router</div>
-            <div className="text-[11px] text-slate-500 tracking-wide hidden sm:block">Atomic Multi-Agent Platform</div>
+            <div className="text-[17px] md:text-[19px] font-bold text-navy leading-tight">Wanderly</div>
+            <div className="text-[11px] text-slate-500 tracking-wide hidden sm:block">Travel with us</div>
           </div>
-        </div>
+        </Link>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-10">

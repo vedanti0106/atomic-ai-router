@@ -51,7 +51,7 @@ const Hero: React.FC = () => {
               Real fares, real people, real places you've been meaning to see. We cut the noise out of booking so your next trip starts in minutes, not tabs.
             </p>
             <div className="flex items-center gap-6 mt-[38px] flex-wrap">
-              <Link to="/dashboard" className="bg-navy text-white px-[38px] py-[19px] rounded-full font-semibold text-[15px] inline-flex items-center gap-[10px] hover:bg-blue-brand hover:-translate-y-0.5 transition-all shadow-md">
+              <Link to="/signup" className="bg-navy text-white px-[38px] py-[19px] rounded-full font-semibold text-[15px] inline-flex items-center gap-[10px] hover:bg-blue-brand hover:-translate-y-0.5 transition-all shadow-md">
                 <span>Get It Now</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

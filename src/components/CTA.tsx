@@ -17,7 +17,7 @@ const CTA: React.FC = () => {
           </h2>
           
           <Link
-            to="/dashboard"
+            to="/signup"
             className="bg-white text-navy px-[38px] py-[19px] rounded-full font-semibold text-[15px] inline-flex items-center gap-[10px] hover:bg-sand hover:text-white transition-all shadow-md shrink-0"
           >
             <span>Start Exploring</span>

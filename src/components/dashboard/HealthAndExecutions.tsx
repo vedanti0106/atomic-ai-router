@@ -13,13 +13,13 @@ const HealthAndExecutions: React.FC = () => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
       
       {/* System Health */}
-      <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] flex flex-col">
+      <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] flex flex-col hover-lift-card">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h3 className="text-[17px] font-bold text-navy font-display">System Health</h3>
             <div className="text-[13px] text-slate-500 mt-1">99.98% overall uptime</div>
           </div>
-          <select className="bg-slate-50 border border-line rounded-[10px] px-3 py-1.5 text-[12px] font-medium text-navy focus:outline-none">
+          <select className="bg-slate-50 border border-line rounded-[10px] px-3 py-1.5 text-[12px] font-medium text-navy focus:outline-none hover:border-blue-300 transition-colors">
             <option>Last 24 hours</option>
             <option>Last 7 days</option>
           </select>
@@ -52,7 +52,7 @@ const HealthAndExecutions: React.FC = () => {
       </div>
 
       {/* Latest Executions */}
-      <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
+      <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] hover-lift-card">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-[17px] font-bold text-navy font-display">Latest Executions</h3>
         </div>
@@ -69,7 +69,7 @@ const HealthAndExecutions: React.FC = () => {
             </thead>
             <tbody>
               {executions.map((e, i) => (
-                <tr key={i} className="border-b border-line last:border-b-0">
+                <tr key={i} className="border-b border-line last:border-b-0 hover-row-glow cursor-pointer">
                   <td className="py-3.5 text-[13px] font-medium text-slate-500 whitespace-nowrap">{e.time}</td>
                   <td className="py-3.5 text-[13px] font-semibold text-navy whitespace-nowrap">{e.req}</td>
                   <td className="py-3.5 text-[13px] font-medium text-navy whitespace-nowrap">{e.agent}</td>

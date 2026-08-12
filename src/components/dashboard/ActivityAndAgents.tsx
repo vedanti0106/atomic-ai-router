@@ -21,7 +21,7 @@ const ActivityAndAgents: React.FC = () => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
       
       {/* Live Request Activity */}
-      <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
+      <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] hover-lift-card">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-[17px] font-bold text-navy font-display">Live Request Activity</h3>
           <span className="w-2 h-2 rounded-full bg-blue-brand animate-pulse"></span>
@@ -29,9 +29,9 @@ const ActivityAndAgents: React.FC = () => {
         
         <div className="relative border-l-2 border-line ml-3 flex flex-col gap-6">
           {requests.map((r, i) => (
-            <div key={i} className="relative pl-6">
+            <div key={i} className="relative pl-6 p-2 rounded-xl transition-all duration-200 hover:bg-blue-50/40 hover:translate-x-1 cursor-pointer">
               {/* Timeline Dot */}
-              <div className={`absolute -left-[7px] top-1.5 w-3 h-3 rounded-full border-2 border-white ${
+              <div className={`absolute -left-[7px] top-3.5 w-3 h-3 rounded-full border-2 border-white ${
                 r.status === 'Running' ? 'bg-blue-brand ring-4 ring-sky' : 'bg-slate-300'
               }`}></div>
               
@@ -53,15 +53,15 @@ const ActivityAndAgents: React.FC = () => {
       </div>
 
       {/* Agent Overview */}
-      <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
+      <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)] hover-lift-card">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-[17px] font-bold text-navy font-display">Agent Overview</h3>
-          <button className="text-[13px] font-semibold text-blue-brand">View All</button>
+          <button className="text-[13px] font-semibold text-blue-brand hover:underline">View All</button>
         </div>
 
         <div className="flex flex-col gap-3">
           {overview.map((o, i) => (
-            <div key={i} className="flex items-center justify-between p-3.5 rounded-[16px] border border-line hover:border-blue-brand/30 transition-colors">
+            <div key={i} className="flex items-center justify-between p-3.5 rounded-[16px] border border-line hover-row-glow hover:border-blue-300 cursor-pointer">
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${o.status === 'Online' ? 'bg-sky text-blue-brand' : 'bg-slate-100 text-slate-500'}`}>
                   🤖
