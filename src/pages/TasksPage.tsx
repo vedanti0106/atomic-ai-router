@@ -337,10 +337,15 @@ const TasksPage: React.FC = () => {
                     <div className="text-right">
                       <div className="text-[13px] font-bold text-navy">${ag.price} USDC</div>
                       {ag.txId ? (
-                        <div className="font-mono text-[11px] text-blue-brand flex items-center justify-end gap-1">
+                        <a 
+                          href={ag.txId.startsWith('REFUND_TX_MOCK') || ag.txId.startsWith('ALGO_TX_MOCK') || ag.txId.startsWith('ALGO_TX_FB_') || ag.txId.startsWith('REFUND_TX_') ? '#' : `https://lora.algokit.io/testnet/transaction/${ag.txId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono text-[11px] text-blue-brand hover:underline flex items-center justify-end gap-1 cursor-pointer"
+                        >
                           <span>🔗</span>
                           <span className="truncate max-w-[110px]">{ag.txId}</span>
-                        </div>
+                        </a>
                       ) : (
                         <span className="text-[11px] text-slate-400">No TxID</span>
                       )}
