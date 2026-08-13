@@ -25,6 +25,7 @@ const NewRequestPage: React.FC = () => {
   const [budget, setBudget] = useState(55000);
   const [goal, setGoal] = useState('');
   const [loading, setLoading] = useState(false);
+  const [simulationOutcome, setSimulationOutcome] = useState<'SUCCESS' | 'ROLLED_BACK'>('SUCCESS');
 
   const { refreshUser } = useAuth();
   const { showSuccess, showError } = useToast();
@@ -49,7 +50,7 @@ const NewRequestPage: React.FC = () => {
         },
         body: JSON.stringify({
           goal: goal,
-          amount: 10.0, // Fixed 10.0 USDC for demo task
+          outcome: simulationOutcome,
         }),
         credentials: 'include',
       });
@@ -164,6 +165,51 @@ const NewRequestPage: React.FC = () => {
                 <div className="flex justify-between items-center mt-3 text-[12px] font-medium text-slate-400">
                   <span>₹10K</span>
                   <span>₹1L</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* 4. Simulation Outcome */}
+            <div className="bg-white rounded-[24px] p-7 border border-line shadow-[0_4px_24px_rgba(15,27,61,0.02)]">
+              <h3 className="text-[16px] font-bold text-navy mb-4">4. Simulation Outcome</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <div 
+                  onClick={() => setSimulationOutcome('SUCCESS')}
+                  className={`border-[2px] rounded-[16px] p-5 cursor-pointer relative transition-all ${
+                    simulationOutcome === 'SUCCESS' 
+                      ? 'border-blue-brand bg-sky/30' 
+                      : 'border-line bg-white hover:border-slate-300'
+                  }`}
+                >
+                  {simulationOutcome === 'SUCCESS' && (
+                    <div className="absolute top-4 right-4 w-5 h-5 rounded-full bg-blue-brand flex items-center justify-center text-white">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                  )}
+                  <h4 className="text-[14px] font-bold text-navy mb-1 pr-6">Outcome A: Success</h4>
+                  <p className="text-[12.5px] text-slate-500">Simulate successful execution across all agents. Escrow is released.</p>
+                </div>
+                
+                <div 
+                  onClick={() => setSimulationOutcome('ROLLED_BACK')}
+                  className={`border-[2px] rounded-[16px] p-5 cursor-pointer relative transition-all ${
+                    simulationOutcome === 'ROLLED_BACK' 
+                      ? 'border-blue-brand bg-sky/30' 
+                      : 'border-line bg-white hover:border-slate-300'
+                  }`}
+                >
+                  {simulationOutcome === 'ROLLED_BACK' && (
+                    <div className="absolute top-4 right-4 w-5 h-5 rounded-full bg-blue-brand flex items-center justify-center text-white">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                  )}
+                  <h4 className="text-[14px] font-bold text-navy mb-1 pr-6">Outcome B: Rollback</h4>
+                  <p className="text-[12.5px] text-slate-500">Simulate sub-agent failure. Escrow triggers refund of all transactions.</p>
                 </div>
               </div>
             </div>

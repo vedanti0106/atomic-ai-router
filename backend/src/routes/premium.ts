@@ -31,7 +31,7 @@ premiumRouter.use(
           network: ALGORAND_TESTNET_CAIP2,
           asset: USDC_TESTNET_ASA_ID,
           payTo: RECEIVER_ADDRESS,
-        },
+        } as any,
         description: 'Premium weather forecast API',
       },
     },

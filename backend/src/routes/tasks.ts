@@ -45,6 +45,154 @@ async function fundEscrowOnChain(taskId: string, amount: number) {
 // ==========================================
 // 1. KICK OFF TASK (ATOMIC DB TRANSACTION)
 // ==========================================
+// Background simulation helper
+function simulateTaskExecution(taskId: string, userId: string, goal: string, amount: number, outcome: 'SUCCESS' | 'ROLLED_BACK') {
+  // Deterministic dynamic prices based on taskId so it matches perfectly
+  let hash = 0;
+  for (let i = 0; i < taskId.length; i++) {
+    hash = taskId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const getVal = (min: number, max: number, offset: number) => {
+    const val = min + (Math.abs(hash + offset) % Math.floor((max - min) * 100)) / 100;
+    return Number(val.toFixed(2));
+  };
+
+  const flightPrice = getVal(1.50, 4.50, 10);
+  const hotelPrice = getVal(2.00, 5.00, 20);
+  const weatherPrice = getVal(0.20, 1.20, 30);
+  const financePrice = getVal(0.50, 2.50, 40);
+
+  const steps: any[] = [
+    {
+      delay: 1000,
+      log: 'Initiating smart routing query for goal: ' + goal,
+      level: 'INFO',
+      metadata: { goal }
+    },
+    {
+      delay: 2500,
+      log: `HTTP 402 Payment Required returned by Flight AI. Cost: $${flightPrice.toFixed(2)} USDC. Challenge nonce: ` + crypto.randomBytes(4).toString('hex'),
+      level: 'x402',
+      metadata: { payTo: 'ALGO_FLIGHT_W4812A4789X012', challengeAmount: `${flightPrice.toFixed(2)} USDC` }
+    },
+    {
+      delay: 3500,
+      log: 'Flight AI micro-payment settled on Algorand TestNet.',
+      level: 'x402',
+      metadata: { txId: crypto.randomBytes(32).toString('hex') }
+    },
+    {
+      delay: 5000,
+      log: outcome === 'SUCCESS' 
+        ? `Hotel AI micro-payment settled on Algorand TestNet.` 
+        : `Hotel AI returned HTTP 402 Payment Required. Cost: $${hotelPrice.toFixed(2)} USDC.`,
+      level: outcome === 'SUCCESS' ? 'x402' : 'INFO',
+      metadata: outcome === 'SUCCESS' 
+        ? { txId: crypto.randomBytes(32).toString('hex') }
+        : { challengeAmount: `${hotelPrice.toFixed(2)} USDC` }
+    }
+  ];
+
+  // If rollback, fail at step 5
+  if (outcome === 'ROLLED_BACK') {
+    steps.push(
+      {
+        delay: 6500,
+        log: `Weather AI connection timeout (5000ms exceeded). Initiating atomic rollback.`,
+        level: 'WARN',
+        metadata: { timeout: true, status: 504 }
+      },
+      {
+        delay: 8000,
+        log: 'Atomic rollback completed: refund transaction issued for task ' + taskId,
+        level: 'x402',
+        metadata: { refundTxId: crypto.randomBytes(32).toString('hex'), refundedAmount: `${amount} USDC` }
+      }
+    );
+  } else {
+    // If success, complete step 5 and 6
+    steps.push(
+      {
+        delay: 6500,
+        log: `Weather AI micro-payment settled on Algorand TestNet. Cost: $${weatherPrice.toFixed(2)} USDC.`,
+        level: 'x402',
+        metadata: { txId: crypto.randomBytes(32).toString('hex'), challengeAmount: `${weatherPrice.toFixed(2)} USDC` }
+      },
+      {
+        delay: 8000,
+        log: `Finance AI micro-payment settled on Algorand TestNet. Cost: $${financePrice.toFixed(2)} USDC.`,
+        level: 'x402',
+        metadata: { txId: crypto.randomBytes(32).toString('hex'), challengeAmount: `${financePrice.toFixed(2)} USDC` }
+      },
+      {
+        delay: 9500,
+        log: 'All sub-agent challenges completed. Deployed atomic escrow smart contract released successfully.',
+        level: 'INFO',
+        metadata: { status: 'RELEASED' }
+      }
+    );
+  }
+
+  // Schedule the logs insertions
+  steps.forEach((step) => {
+    setTimeout(async () => {
+      try {
+        db.insert(logs).values({
+          id: crypto.randomUUID(),
+          taskId,
+          level: step.level,
+          message: step.log,
+          metadata: JSON.stringify(step.metadata),
+        }).run();
+      } catch (e) {
+        console.error('Error inserting simulation log:', e);
+      }
+    }, step.delay);
+  });
+
+  // Finally, update the task and escrow status
+  setTimeout(async () => {
+    try {
+      if (outcome === 'SUCCESS') {
+        db.update(tasks)
+          .set({ status: 'SUCCESS', completedAt: new Date() })
+          .where(eq(tasks.id, taskId))
+          .run();
+
+        db.update(escrows)
+          .set({ status: 'RELEASED', txidResolution: 'ALGO_TX_RESOLVE_' + crypto.randomBytes(16).toString('hex') })
+          .where(eq(escrows.taskId, taskId))
+          .run();
+      } else {
+        db.update(tasks)
+          .set({ status: 'ROLLED_BACK', completedAt: new Date() })
+          .where(eq(tasks.id, taskId))
+          .run();
+
+        db.update(escrows)
+          .set({ status: 'REFUNDED', txidResolution: 'ALGO_TX_REFUND_' + crypto.randomBytes(16).toString('hex') })
+          .where(eq(escrows.taskId, taskId))
+          .run();
+
+        // Refund the user's balance
+        const userRecord = db.select().from(users).where(eq(users.id, userId)).all()[0];
+        if (userRecord) {
+          const newBalance = userRecord.balance + amount;
+          db.update(users)
+            .set({ balance: newBalance })
+            .where(eq(users.id, userId))
+            .run();
+        }
+      }
+    } catch (e) {
+      console.error('Error updating final simulation status:', e);
+    }
+  }, outcome === 'SUCCESS' ? 10000 : 8500);
+}
+
+// ==========================================
+// 1. KICK OFF TASK (ATOMIC DB TRANSACTION)
+// ==========================================
 tasksRouter.post('/', async (c) => {
   const userId = getUserIdFromCookie(c);
   if (!userId) {
@@ -52,13 +200,30 @@ tasksRouter.post('/', async (c) => {
   }
 
   try {
-    const { goal, amount = 10.0 } = await c.req.json(); // Default cost: 10 USDC
+    const { goal, outcome = 'SUCCESS' } = await c.req.json();
 
     if (!goal) {
       return c.json({ error: true, message: 'Goal description is required' }, 400);
     }
 
     const taskId = `task_${crypto.randomUUID().slice(0, 18)}`;
+
+    // Calculate dynamic amount based on unique properties of goal and taskId
+    let hash = 0;
+    const saltStr = goal + taskId;
+    for (let i = 0; i < saltStr.length; i++) {
+      hash = saltStr.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const getVal = (min: number, max: number, offset: number) => {
+      const val = min + (Math.abs(hash + offset) % Math.floor((max - min) * 100)) / 100;
+      return Number(val.toFixed(2));
+    };
+
+    const flightPrice = getVal(1.50, 4.50, 10);
+    const hotelPrice = getVal(2.00, 5.00, 20);
+    const weatherPrice = getVal(0.20, 1.20, 30);
+    const financePrice = getVal(0.50, 2.50, 40);
+    const amount = Number((flightPrice + hotelPrice + weatherPrice + financePrice).toFixed(2));
 
     const userRecord = await db.query.users.findFirst({
       where: eq(users.id, userId)
@@ -121,6 +286,10 @@ tasksRouter.post('/', async (c) => {
           metadata: JSON.stringify({ txidFund: onChainDetails.txid }),
         }).run();
       });
+      
+      // Trigger the dynamic background simulation execution!
+      simulateTaskExecution(taskId, userId, goal, amount, outcome);
+
     } catch (err: any) {
       if (err.message === 'USER_NOT_FOUND') {
         return c.json({ error: true, message: 'User account not found' }, 404);
@@ -301,25 +470,40 @@ tasksRouter.get('/', async (c) => {
       
       const status = t.status as 'SUCCESS' | 'IN_PROGRESS' | 'FAILED' | 'ROLLED_BACK';
       
+      // Calculate dynamic prices deterministically based on taskId
+      let hash = 0;
+      for (let i = 0; i < t.id.length; i++) {
+        hash = t.id.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const getVal = (min: number, max: number, offset: number) => {
+        const val = min + (Math.abs(hash + offset) % Math.floor((max - min) * 100)) / 100;
+        return Number(val.toFixed(2));
+      };
+
+      const flightPrice = getVal(1.50, 4.50, 10);
+      const hotelPrice = getVal(2.00, 5.00, 20);
+      const weatherPrice = getVal(0.20, 1.20, 30);
+      const financePrice = getVal(0.50, 2.50, 40);
+
       let agentsList: any[] = [];
       if (status === 'SUCCESS') {
         agentsList = [
-          { name: 'Flight AI', icon: '✈', price: '3.00', status: 'COMPLETED', txId: escrowRecord?.txidFund || 'ALGO_TX_MOCK1', latency: '620ms' },
-          { name: 'Hotel AI', icon: '🛏', price: '2.50', status: 'COMPLETED', txId: escrowRecord?.txidResolution || 'ALGO_TX_MOCK2', latency: '890ms' },
-          { name: 'Weather AI', icon: '☀', price: '0.50', status: 'COMPLETED', txId: 'ALGO_TX_MOCK3', latency: '210ms' },
-          { name: 'Finance AI', icon: '💳', price: '4.00', status: 'COMPLETED', txId: 'ALGO_TX_MOCK4', latency: '450ms' },
+          { name: 'Flight AI', icon: '✈', price: flightPrice.toFixed(2), status: 'COMPLETED', txId: escrowRecord?.txidFund || 'ALGO_TX_' + crypto.createHash('md5').update(t.id + '1').digest('hex').slice(0, 16), latency: '620ms' },
+          { name: 'Hotel AI', icon: '🛏', price: hotelPrice.toFixed(2), status: 'COMPLETED', txId: escrowRecord?.txidResolution || 'ALGO_TX_' + crypto.createHash('md5').update(t.id + '2').digest('hex').slice(0, 16), latency: '890ms' },
+          { name: 'Weather AI', icon: '☀', price: weatherPrice.toFixed(2), status: 'COMPLETED', txId: 'ALGO_TX_' + crypto.createHash('md5').update(t.id + '3').digest('hex').slice(0, 16), latency: '210ms' },
+          { name: 'Finance AI', icon: '💳', price: financePrice.toFixed(2), status: 'COMPLETED', txId: 'ALGO_TX_' + crypto.createHash('md5').update(t.id + '4').digest('hex').slice(0, 16), latency: '450ms' },
         ];
       } else if (status === 'IN_PROGRESS') {
         agentsList = [
-          { name: 'Flight AI', icon: '✈', price: '3.00', status: 'COMPLETED', txId: escrowRecord?.txidFund || 'ALGO_TX_MOCK1', latency: '540ms' },
-          { name: 'Hotel AI', icon: '🛏', price: '2.50', status: 'RUNNING', latency: '310ms' },
+          { name: 'Flight AI', icon: '✈', price: flightPrice.toFixed(2), status: 'COMPLETED', txId: escrowRecord?.txidFund || 'ALGO_TX_' + crypto.createHash('md5').update(t.id + '1').digest('hex').slice(0, 16), latency: '540ms' },
+          { name: 'Hotel AI', icon: '🛏', price: hotelPrice.toFixed(2), status: 'RUNNING', latency: '310ms' },
           { name: 'Finance AI', icon: '💳', price: '0.00', status: 'RUNNING', latency: '0ms' }
         ];
       } else if (status === 'ROLLED_BACK' || status === 'FAILED') {
         agentsList = [
-          { name: 'Flight AI', icon: '✈', price: '3.00', status: 'ROLLED_BACK', txId: 'REFUND_TX_MOCK1', latency: '710ms' },
-          { name: 'Hotel AI', icon: '🛏', price: '2.50', status: 'ROLLED_BACK', txId: 'REFUND_TX_MOCK2', latency: '430ms' },
-          { name: 'Weather AI', icon: '☀', price: '4.50', status: 'FAILED', latency: 'timeout' }
+          { name: 'Flight AI', icon: '✈', price: flightPrice.toFixed(2), status: 'ROLLED_BACK', txId: 'REFUND_TX_' + crypto.createHash('md5').update(t.id + '1').digest('hex').slice(0, 16), latency: '710ms' },
+          { name: 'Hotel AI', icon: '🛏', price: hotelPrice.toFixed(2), status: 'ROLLED_BACK', txId: 'REFUND_TX_' + crypto.createHash('md5').update(t.id + '2').digest('hex').slice(0, 16), latency: '430ms' },
+          { name: 'Weather AI', icon: '☀', price: weatherPrice.toFixed(2), status: 'FAILED', latency: 'timeout' }
         ];
       }
 
