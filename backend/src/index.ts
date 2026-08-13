@@ -19,8 +19,12 @@ const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
 app.use('/api/*', cors({
   origin: (origin) => {
     if (!origin) return FRONTEND_ORIGIN;
-    // Allow any local host port for developer convenience
-    if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+    // Allow any local host port or vercel deployments for developer convenience
+    if (
+      origin.startsWith('http://localhost:') || 
+      origin.startsWith('http://127.0.0.1:') || 
+      origin.endsWith('.vercel.app')
+    ) {
       return origin;
     }
     return FRONTEND_ORIGIN;
