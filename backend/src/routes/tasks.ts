@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { getCookie } from 'hono/cookie';
 import crypto from 'crypto';
 import algosdk from 'algosdk';
+import { syncReputation } from '../services/reputationSync.js';
 
 const tasksRouter = new Hono();
 const JWT_SECRET = process.env.JWT_SECRET || 'atomic_ai_router_secret_key_12345';
@@ -152,6 +153,15 @@ async function simulateTaskExecution(taskId: string, userId: string, goal: strin
       metadata: JSON.stringify({ txId: flightTxId })
     }).run();
 
+    // Update reputation for flight agent
+    try {
+      const flightScore = await syncReputation('ALGO_FLIGHT_W4812A4789X012', 'SUCCESS');
+      if (flightScore !== null && flightScore < 60) {
+        db.update(agents).set({ status: 'OFFLINE' }).where(eq(agents.walletAddress, 'ALGO_FLIGHT_W4812A4789X012')).run();
+        db.insert(logs).values({ id: crypto.randomUUID(), taskId, level: 'WARN', message: 'Flight AI marked OFFLINE due to low reputation', metadata: JSON.stringify({ score: flightScore }) }).run();
+      }
+    } catch (e) { /* noop */ }
+
     await delay(1500);
 
     // 3. Hotel AI Challenge Log
@@ -187,6 +197,15 @@ async function simulateTaskExecution(taskId: string, userId: string, goal: strin
       settledAt: new Date()
     }).run();
 
+    // Update reputation for hotel agent
+    try {
+      const hotelScore = await syncReputation('ALGO_HOTEL_W1023B4789X013', 'SUCCESS');
+      if (hotelScore !== null && hotelScore < 60) {
+        db.update(agents).set({ status: 'OFFLINE' }).where(eq(agents.walletAddress, 'ALGO_HOTEL_W1023B4789X013')).run();
+        db.insert(logs).values({ id: crypto.randomUUID(), taskId, level: 'WARN', message: 'Hotel AI marked OFFLINE due to low reputation', metadata: JSON.stringify({ score: hotelScore }) }).run();
+      }
+    } catch (e) { /* noop */ }
+
     if (outcome === 'ROLLED_BACK') {
       // 4. Weather AI Rollback scenario
       db.insert(logs).values({
@@ -209,6 +228,15 @@ async function simulateTaskExecution(taskId: string, userId: string, goal: strin
         message: 'Atomic rollback completed: refund transaction issued for task ' + taskId,
         metadata: JSON.stringify({ refundTxId, refundedAmount: `${amount} USDC` })
       }).run();
+
+      // Weather agent dispute due to timeout - mark reputation
+      try {
+        const weatherScore = await syncReputation('ALGO_WEATH_W9312C4789X014', 'DISPUTE');
+        if (weatherScore !== null && weatherScore < 60) {
+          db.update(agents).set({ status: 'OFFLINE' }).where(eq(agents.walletAddress, 'ALGO_WEATH_W9312C4789X014')).run();
+          db.insert(logs).values({ id: crypto.randomUUID(), taskId, level: 'WARN', message: 'Weather AI marked OFFLINE due to repeated failures', metadata: JSON.stringify({ score: weatherScore }) }).run();
+        }
+      } catch (e) { /* noop */ }
 
       // Update task & escrow state
       db.update(tasks)
@@ -260,6 +288,15 @@ async function simulateTaskExecution(taskId: string, userId: string, goal: strin
         metadata: JSON.stringify({ txId: weatherTxId, challengeAmount: `${weatherPrice.toFixed(2)} USDC` })
       }).run();
 
+      // Update reputation for weather agent
+      try {
+        const weatherScore = await syncReputation('ALGO_WEATH_W9312C4789X014', 'SUCCESS');
+        if (weatherScore !== null && weatherScore < 60) {
+          db.update(agents).set({ status: 'OFFLINE' }).where(eq(agents.walletAddress, 'ALGO_WEATH_W9312C4789X014')).run();
+          db.insert(logs).values({ id: crypto.randomUUID(), taskId, level: 'WARN', message: 'Weather AI marked OFFLINE due to low reputation', metadata: JSON.stringify({ score: weatherScore }) }).run();
+        }
+      } catch (e) { /* noop */ }
+
       await delay(1500);
 
       // 5. Success path: Finance AI
@@ -281,6 +318,15 @@ async function simulateTaskExecution(taskId: string, userId: string, goal: strin
         algorandTxId: financeTxId,
         settledAt: new Date()
       }).run();
+
+        // Update reputation for finance agent
+        try {
+          const financeScore = await syncReputation('ALGO_FINAN_W2212D4789X015', 'SUCCESS');
+          if (financeScore !== null && financeScore < 60) {
+            db.update(agents).set({ status: 'OFFLINE' }).where(eq(agents.walletAddress, 'ALGO_FINAN_W2212D4789X015')).run();
+            db.insert(logs).values({ id: crypto.randomUUID(), taskId, level: 'WARN', message: 'Finance AI marked OFFLINE due to low reputation', metadata: JSON.stringify({ score: financeScore }) }).run();
+          }
+        } catch (e) { /* noop */ }
 
       db.insert(logs).values({
         id: crypto.randomUUID(),

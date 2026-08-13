@@ -53,9 +53,12 @@ export async function syncReputation(
           lastSyncedAt: new Date(),
         }
       });
+      console.log(`[ReputationSync] Synced agent ${agentAddress} | Total: ${currentTotal} | Success: ${currentSuccess} | Dispute: ${currentDispute} | Cached Score: ${derivedScore.toFixed(1)}%`);
 
-    console.log(`[ReputationSync] Synced agent ${agentAddress} | Total: ${currentTotal} | Success: ${currentSuccess} | Dispute: ${currentDispute} | Cached Score: ${derivedScore.toFixed(1)}%`);
+      // Return derived score to allow callers to react (e.g., mark agent offline)
+      return derivedScore;
   } catch (error) {
     console.error(`[ReputationSync] Failed to sync reputation for agent ${agentAddress}:`, error);
+      return null;
   }
 }
